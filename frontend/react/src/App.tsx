@@ -20,6 +20,7 @@ function App() {
     }).then((parsed) => {
       parsed.json().then((data) => {
         setContainerList(data);
+        console.log(data);
       });
     });
   }, []);
@@ -39,9 +40,10 @@ function App() {
         {containerList.map((container: any) => {
           return (
             <div>
-              <h2>{container.name}</h2>
-              <p>{container.status}</p>
-              <p>{container.url}</p>
+              <h3>{container.Names}</h3>
+              <p>{container.Status}</p>
+              <p>{container.Ports}</p>
+              <p>{container.CreatedAt}</p>
             </div>
           );
         })}
