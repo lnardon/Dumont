@@ -15,12 +15,15 @@ import (
 
 type Request struct {
 	RepoURL string `json:"repo_url"`
+	Port string `json:"container_port"`
+	ContainerId string `json:"container_id"`
 }
 
 func main() {
     http.Handle("/", http.FileServer(http.Dir("./frontend/react/dist")))   
 	http.HandleFunc("/cloneRepo", handleClone)
 	http.HandleFunc("/getContainerList", handleContainerList)
+	http.HandleFunc("/deleteContainer", handleDeleteContainer)
 
 	fmt.Println("Server started on :3322")
 	err := http.ListenAndServe(":3322", nil)
@@ -35,12 +38,12 @@ func gitClone(repoURL, dest string) error {
 }
 
 func dockerBuild(imageName, context string) error {
-	cmd := exec.Command("sudo","docker", "build", "-t", imageName, context)
+	cmd := exec.Command("docker", "build", "-t", imageName, context)
 	return cmd.Run()
 }
 
 func dockerRun(imageName string, port string) error {
-    cmd := exec.Command("sudo","docker", "run", "-d", "-p", "8080:8080", imageName)
+    cmd := exec.Command("docker", "run", "-d", "-p", port+":"+port, imageName)
 	return cmd.Run()
 }
 
@@ -77,7 +80,7 @@ func handleClone(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := dockerRun(imageName, "3322"); err != nil {
+	if err := dockerRun(imageName, req.Port); err != nil {
 		http.Error(w, fmt.Sprintf("Error running Docker container: %s", err), http.StatusInternalServerError)
 		return
 	}
@@ -93,8 +96,7 @@ func handleContainerList(w http.ResponseWriter, r *http.Request) {
 
 	var stdoutBuf, stderrBuf bytes.Buffer
 
-	// Use --format to get each container's info in JSON format
-	cmd := exec.Command("sudo", "docker", "ps", "-a", "--format", "{{json .}}")
+	cmd := exec.Command("docker", "ps", "-a", "--format", "{{json .}}")
 	cmd.Stdout = &stdoutBuf
 	cmd.Stderr = &stderrBuf
 
@@ -103,7 +105,6 @@ func handleContainerList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Read the output line by line (each line is a JSON object)
 	scanner := bufio.NewScanner(&stdoutBuf)
 	var containers []json.RawMessage
 	for scanner.Scan() {
@@ -115,16 +116,42 @@ func handleContainerList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Convert the slice of containers into a JSON array
 	jsonContainers, err := json.Marshal(containers)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error marshaling container list: %s", err), http.StatusInternalServerError)
 		return
 	}
 
-	// Write the JSON array to the HTTP response
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonContainers)
+}
+
+func handleDeleteContainer(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Only POST requests are allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	body, err := io.ReadAll(r.Body)
+	defer r.Body.Close()
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusInternalServerError)
+		return
+	}
+	var req Request
+	err = json.Unmarshal(body, &req)
+	if err != nil {
+		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
+		return
+	}
+	if err := cmdFactory("docker stop " + req.ContainerId); err != nil {
+		http.Error(w, fmt.Sprintf("Error stoping container: %s", err), http.StatusInternalServerError)
+		return
+	}
+		if err := cmdFactory("docker remove " + req.ContainerId); err != nil {
+		http.Error(w, fmt.Sprintf("Error deleting container: %s", err), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 
