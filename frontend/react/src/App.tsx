@@ -1,9 +1,26 @@
 import { useState, useEffect } from "react";
+import ContainerCard from "./components/ContainerCard";
+import ContainerImage from "./assets/containers.png";
 import "./App.css";
 
 function App() {
   const [repoLink, setRepoLink] = useState("");
-  const [containerList, setContainerList] = useState([]);
+  const [containerList, setContainerList] = useState([
+    {
+      Names: "Dumont",
+      Status: "Up 12 hrs",
+      Ports: "2354:2354",
+      CreatedAt: "20231112",
+      ID: "aD34SfSDV",
+    },
+    {
+      Names: "Demoiselle",
+      Status: "Up 17 hrs",
+      Ports: "4472:4472",
+      CreatedAt: "20230102",
+      ID: "JH43gd9",
+    },
+  ]);
 
   function sendRepoLink() {
     const containerPort = prompt("Enter the port you want to use:");
@@ -48,27 +65,40 @@ function App() {
   }, []);
 
   return (
-    <div>
-      <h1>Dumont</h1>
+    <div className="container">
+      <h1 className="title">Dumont</h1>
       <input
         type="text"
         value={repoLink}
         onChange={(e) => setRepoLink(e.target.value)}
         placeholder="https://github.com/lnardon/Dumont.git"
+        className="url-input"
       />
-      <button onClick={sendRepoLink}>Deploy</button>
+      <button onClick={sendRepoLink} className="clone-btn">
+        Deploy
+      </button>
 
-      <div>
+      <div className="containers-title">
+        <h3>Your Containers:</h3>
+        <img
+          src={ContainerImage}
+          alt="Containers"
+          className="containers-title-image"
+        />
+      </div>
+      <div className="containerList">
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {containerList?.map((container: any) => {
           return (
-            <div>
-              <h3>{container.Names}</h3>
-              <p>{container.Status}</p>
-              <p>{container.Ports}</p>
-              <p>{container.CreatedAt}</p>
-              <button onClick={() => handleDelete(container.ID)}>Delete</button>
-            </div>
+            <ContainerCard
+              key={container.ID}
+              name={container.Names}
+              ports={container.Ports}
+              handleDelete={handleDelete}
+              createdAt={container.CreatedAt}
+              id={container.ID}
+              status={container.Status}
+            />
           );
         })}
       </div>
