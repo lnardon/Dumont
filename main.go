@@ -43,7 +43,7 @@ func dockerBuild(imageName, context string) error {
 }
 
 func dockerRun(imageName string, port string) error {
-    cmd := exec.Command("docker", "run", "-d", "-p", port+":"+port, imageName)
+    cmd := exec.Command("docker", "run", "-d", "-p", port, imageName)
 	return cmd.Run()
 }
 
