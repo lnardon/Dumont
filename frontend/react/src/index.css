@@ -1,4 +1,9 @@
 :root {
+  --primary-color: #ffd000;
+  --secondary-color: #646cff;
+  --black-color: #090909;
+  --white-color: #fafafa;
+
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -15,9 +20,9 @@
 }
 
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 body {

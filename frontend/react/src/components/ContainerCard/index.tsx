@@ -7,6 +7,7 @@ interface ContainerCardProps {
   createdAt: string;
   id: string;
   handleDelete: (containerId: string) => void;
+  handleOpen: (containerPort: string) => void;
 }
 
 const ContainerCard: React.FC<ContainerCardProps> = ({
@@ -16,6 +17,7 @@ const ContainerCard: React.FC<ContainerCardProps> = ({
   // createdAt,
   id,
   handleDelete,
+  handleOpen,
 }) => {
   return (
     <div className={styles.container}>
@@ -23,6 +25,12 @@ const ContainerCard: React.FC<ContainerCardProps> = ({
       <p>{status}</p>
       <p>{ports.split(",")[0]}</p>
       {/* <p>{createdAt}</p> */}
+      <button
+        className={styles.deleteBtn}
+        onClick={() => handleOpen(ports.split(":")[1].split("->")[0])}
+      >
+        Open
+      </button>
       <button className={styles.deleteBtn} onClick={() => handleDelete(id)}>
         X
       </button>

@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import ContainerCard from "./components/ContainerCard";
 import ContainerImage from "./assets/containers.png";
 import "./App.css";
+import Header from "./components/Header";
+import NavBar from "./components/NavBar";
 
 function App() {
-  const [repoLink, setRepoLink] = useState("");
   const [containerList, setContainerList] = useState([
     {
       Names: "Dumont",
@@ -23,7 +24,14 @@ function App() {
   ]);
 
   function sendRepoLink() {
+    const repoLink = prompt("Enter the repo link:");
     const containerPort = prompt("Enter the port you want to use:");
+
+    if (!repoLink || !containerPort) {
+      alert("Please enter a valid repo link and port");
+      return;
+    }
+
     fetch("/cloneRepo", {
       method: "POST",
       body: JSON.stringify({
@@ -65,44 +73,44 @@ function App() {
   }, []);
 
   return (
-    <div className="container">
-      <h1 className="title">Dumont</h1>
-      <input
-        type="text"
-        value={repoLink}
-        onChange={(e) => setRepoLink(e.target.value)}
-        placeholder="https://github.com/lnardon/Dumont.git"
-        className="url-input"
-      />
-      <button onClick={sendRepoLink} className="clone-btn">
-        Deploy
-      </button>
-
-      <div className="containers-title">
-        <h3>Your Containers:</h3>
-        <img
-          src={ContainerImage}
-          alt="Containers"
-          className="containers-title-image"
-        />
-      </div>
-      <div className="containerList">
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {containerList?.map((container: any) => {
-          return (
-            <ContainerCard
-              key={container.ID}
-              name={container.Names}
-              ports={container.Ports}
-              handleDelete={handleDelete}
-              createdAt={container.CreatedAt}
-              id={container.ID}
-              status={container.Status}
+    <>
+      <Header />
+      <div className="content">
+        <NavBar handleCloneRepo={sendRepoLink} handleCreate={() => {}} />
+        <div className="container">
+          <div className="containers-title">
+            <h3>Your Containers:</h3>
+            <img
+              src={ContainerImage}
+              alt="Containers"
+              className="containers-title-image"
             />
-          );
-        })}
+          </div>
+          <div className="containerList">
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {containerList?.map((container: any) => {
+              return (
+                <ContainerCard
+                  key={container.ID}
+                  name={container.Names}
+                  ports={container.Ports}
+                  handleDelete={handleDelete}
+                  handleOpen={(port: string) => {
+                    window.open(
+                      `${window.location.protocol}//${window.location.hostname}:${port}`,
+                      "_blank"
+                    );
+                  }}
+                  createdAt={container.CreatedAt}
+                  id={container.ID}
+                  status={container.Status}
+                />
+              );
+            })}
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
