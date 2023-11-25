@@ -74,7 +74,7 @@ function App() {
 
   return (
     <>
-      <Header />
+      <Header handleCreate={sendRepoLink} />
       <div className="content">
         <NavBar handleCloneRepo={sendRepoLink} handleCreate={() => {}} />
         <div className="container">
