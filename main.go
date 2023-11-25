@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -89,41 +88,40 @@ func handleClone(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleContainerList(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Only GET requests are allowed", http.StatusMethodNotAllowed)
-		return
-	}
+    if r.Method != http.MethodGet {
+        http.Error(w, "Only GET requests are allowed", http.StatusMethodNotAllowed)
+        return
+    }
 
-	var stdoutBuf, stderrBuf bytes.Buffer
+    var stdoutBuf, stderrBuf bytes.Buffer
 
-	cmd := exec.Command("docker", "ps", "-a", "--format", "{{json .}}")
-	cmd.Stdout = &stdoutBuf
-	cmd.Stderr = &stderrBuf
+    cmd := exec.Command("docker", "ps", "-a", "--format", "{{json .}}")
+    cmd.Stdout = &stdoutBuf
+    cmd.Stderr = &stderrBuf
 
-	if err := cmd.Run(); err != nil {
-		http.Error(w, fmt.Sprintf("Error getting container list: %s, Details: %s", err, stderrBuf.String()), http.StatusInternalServerError)
-		return
-	}
+    if err := cmd.Run(); err != nil {
+        http.Error(w, fmt.Sprintf("Error getting container list: %s, Details: %s", err, stderrBuf.String()), http.StatusInternalServerError)
+        return
+    }
 
-	scanner := bufio.NewScanner(&stdoutBuf)
-	var containers []json.RawMessage
-	for scanner.Scan() {
-		containers = append(containers, json.RawMessage(scanner.Bytes()))
-	}
+    containerOutputs := strings.Split(stdoutBuf.String(), "\n")
+    var containers []json.RawMessage
+    for _, containerOutput := range containerOutputs {
+        if containerOutput == "" {
+            continue
+        }
+        containers = append(containers, json.RawMessage(containerOutput))
+    }
 
-	if err := scanner.Err(); err != nil {
-		http.Error(w, fmt.Sprintf("Error reading container list: %s", err), http.StatusInternalServerError)
-		return
-	}
+    jsonContainers, err := json.Marshal(containers)
+    if err != nil {
+        http.Error(w, fmt.Sprintf("Error marshaling container list: %s", err), http.StatusInternalServerError)
+        return
+    }
 
-	jsonContainers, err := json.Marshal(containers)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error marshaling container list: %s", err), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonContainers)
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
+    w.Write(jsonContainers)
 }
 
 func handleDeleteContainer(w http.ResponseWriter, r *http.Request) {
