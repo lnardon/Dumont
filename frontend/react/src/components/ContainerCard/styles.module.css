@@ -1,12 +1,14 @@
 .container {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: start;
   justify-content: space-between;
-  width: 100%;
-  background-color: rgb(127, 127, 127);
+  background-color: var(--secondary-color);
   padding: 1rem;
   border-radius: 0.5rem;
   margin-bottom: 0.5rem;
+  cursor: pointer;
+  animation: appear 1s ease;
 }
 
 .deleteBtn {
@@ -20,4 +22,13 @@
   cursor: pointer;
   outline: none;
   transition: all 0.2s ease-in-out;
+}
+
+@keyframes appear {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
