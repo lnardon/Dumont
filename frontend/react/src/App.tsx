@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import ContainerCard from "./components/ContainerCard";
-import ContainerImage from "./assets/containers.png";
 import "./App.css";
+import ContainerCard from "./components/ContainerCard";
 import Header from "./components/Header";
-import NavBar from "./components/NavBar";
+import HardwareInfo from "./components/HardwareInfo";
 
 function App() {
   const [containerList, setContainerList] = useState([
@@ -48,19 +47,19 @@ function App() {
     });
   }
 
-  function handleDelete(containerId: string) {
-    fetch("/deleteContainer", {
-      method: "POST",
-      body: JSON.stringify({ container_id: containerId }),
-    }).then((res) => {
-      if (res.status === 200) {
-        alert("Container deleted");
-      } else {
-        alert("Error deleting container");
-      }
-      window.location.reload();
-    });
-  }
+  // function handleDelete(containerId: string) {
+  //   fetch("/deleteContainer", {
+  //     method: "POST",
+  //     body: JSON.stringify({ container_id: containerId }),
+  //   }).then((res) => {
+  //     if (res.status === 200) {
+  //       alert("Container deleted");
+  //     } else {
+  //       alert("Error deleting container");
+  //     }
+  //     window.location.reload();
+  //   });
+  // }
 
   useEffect(() => {
     fetch("/getContainerList", {
@@ -76,16 +75,8 @@ function App() {
     <>
       <Header handleCreate={sendRepoLink} />
       <div className="content">
-        <NavBar handleCloneRepo={sendRepoLink} handleCreate={() => {}} />
+        <HardwareInfo />
         <div className="container">
-          <div className="containers-title">
-            <h3>Your Containers:</h3>
-            <img
-              src={ContainerImage}
-              alt="Containers"
-              className="containers-title-image"
-            />
-          </div>
           <div className="containerList">
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {containerList?.map((container: any) => {
@@ -94,7 +85,6 @@ function App() {
                   key={container.ID}
                   name={container.Names}
                   ports={container.Ports}
-                  handleDelete={handleDelete}
                   handleOpen={(port: string) => {
                     window.open(
                       `${window.location.protocol}//${window.location.hostname}:${port}`,
@@ -103,7 +93,7 @@ function App() {
                   }}
                   createdAt={container.CreatedAt}
                   id={container.ID}
-                  status={container.Status}
+                  // status={container.Status}
                 />
               );
             })}

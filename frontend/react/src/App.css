@@ -15,62 +15,21 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  flex: 4;
-}
-
-.title {
-  font-size: 5rem;
-  font-weight: 900;
-  margin-bottom: 2rem;
-  animation: appear 1.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  color: antiquewhite;
-  margin-top: 5rem;
-}
-
-.url-input {
-  width: 100%;
-  max-width: 700px;
-  margin: 0 auto;
-  margin-bottom: 2rem;
-  padding: 1.25rem;
-  border: 1px solid #ccc;
-  border-radius: 0.25rem;
-  font-size: 1.5rem;
-  font-weight: 500;
-  outline: none;
-  transition: all 0.2s ease-in-out;
-  animation: appear 1.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  background-color: antiquewhite;
-  color: #111;
-}
-
-.clone-btn {
-  background-color: antiquewhite;
-  padding: 0.75rem 1.5rem;
-  border: 1px solid #ccc;
-  border-radius: 0.25rem;
-  font-size: 1.5rem;
-  font-weight: 700;
-  text-align: center;
-  text-decoration: none;
-  color: #333;
-  outline: none;
-  transition: all 0.2s ease-in-out;
-  animation: appear 1.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  margin-bottom: 16rem;
+  flex: 3;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  padding: 1rem;
 }
 
 .containers-title {
+  width: 100%;
   font-size: 1.5rem;
   font-weight: 700;
-  margin: 1rem 0rem;
+  margin-bottom: 1rem;
   color: antiquewhite;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  width: 100%;
-  max-width: 700px;
 }
 
 .containers-title-image {
@@ -81,7 +40,16 @@
 
 .containerList {
   width: 100%;
-  max-width: 700px;
+  display: flex;
+  flex-wrap: wrap;
+  white-space: nowrap;
+  gap: 1rem;
+}
+
+@media (min-width: 1200px) {
+  .container {
+    flex: 4;
+  }
 }
 
 @keyframes appear {
