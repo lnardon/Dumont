@@ -2,38 +2,28 @@ import styles from "./styles.module.css";
 
 interface ContainerCardProps {
   name: string;
-  status: string;
+  // status: string;
   ports: string;
   createdAt: string;
   id: string;
-  handleDelete: (containerId: string) => void;
   handleOpen: (containerPort: string) => void;
 }
 
 const ContainerCard: React.FC<ContainerCardProps> = ({
   name,
-  status,
+  // status,
   ports,
-  // createdAt,
-  id,
-  handleDelete,
+  // id,
   handleOpen,
 }) => {
   return (
-    <div className={styles.container}>
+    <div
+      className={styles.container}
+      onClick={() => handleOpen(ports.split(":")[1].split("->")[0])}
+    >
       <h3>{name}</h3>
-      <p>{status}</p>
+      {/* <p>{status}</p> */}
       <p>{ports.split(",")[0]}</p>
-      {/* <p>{createdAt}</p> */}
-      <button
-        className={styles.deleteBtn}
-        onClick={() => handleOpen(ports.split(":")[1].split("->")[0])}
-      >
-        Open
-      </button>
-      <button className={styles.deleteBtn} onClick={() => handleDelete(id)}>
-        X
-      </button>
     </div>
   );
 };

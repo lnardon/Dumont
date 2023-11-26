@@ -1,4 +1,5 @@
 .container {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -6,13 +7,22 @@
   padding: 1rem;
   border-radius: 0.5rem;
   background-color: rgba(255, 255, 255, 0.05);
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .logo {
   width: 3.5rem;
   height: 3.5rem;
   animation: appear 0.7s ease;
+}
+
+.time {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  font-size: 1.125rem;
+  font-weight: 700;
 }
 
 .button {
