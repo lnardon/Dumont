@@ -7,7 +7,7 @@ const HardwareInfoComponent: React.FC = () => {
   const [cpuUsage, setCpuUsage] = useState(0);
   const [ramUsage, setRamUsage] = useState(0);
   const [usedStorage, setUsedStorage] = useState(0);
-  const [totalStorage, setTotalStorage] = useState(0);
+  const [totalStorage, setTotalStorage] = useState(1);
 
   async function getInfo() {
     const response = await fetch("/getHardwareInfo");
@@ -59,17 +59,23 @@ const HardwareInfoComponent: React.FC = () => {
       <span className={styles.blinbkingDot}></span>
       <div className={styles.hardwareInfo}>
         <div className={styles.hardwareInfoItem}>
-          <h3 className={styles.title}>CPU</h3>
+          <div className={styles.hardwareInfoTitle}>
+            <h3 className={styles.title}>CPU</h3>
+            <p className={styles.infoDetail}>{cpuInfo}</p>
+          </div>
           <div className={styles.progressBar}>
             <div
               className={styles.progress}
               style={{ width: `${cpuUsage.toFixed(0)}%` }}
             ></div>
           </div>
-          <p className={styles.infoDetail}>{cpuInfo}</p>
+          <p className={styles.infoDetail}>Soon...</p>
         </div>
         <div className={styles.hardwareInfoItem}>
-          <h3 className={styles.title}>RAM</h3>
+          <div className={styles.hardwareInfoTitle}>
+            <h3 className={styles.title}>RAM</h3>
+            <p className={styles.infoDetail}>{ramUsage.toFixed(0)}%</p>
+          </div>
           {/* TODO: Change this to a cleaner solution */}
           <div className={styles.progressBar}>
             <div
@@ -84,11 +90,16 @@ const HardwareInfoComponent: React.FC = () => {
           </p>
         </div>
         <div className={styles.hardwareInfoItem}>
-          <h3 className={styles.title}>Storage</h3>
+          <div className={styles.hardwareInfoTitle}>
+            <h3 className={styles.title}>Storage</h3>
+            <p className={styles.infoDetail}>
+              {((100 * usedStorage) / totalStorage).toFixed(0)}%
+            </p>
+          </div>
           <div className={styles.progressBar}>
             <div
               className={styles.progress}
-              style={{ width: `${ramUsage}%` }}
+              style={{ width: `${(100 * usedStorage) / totalStorage}%` }}
             ></div>
           </div>
           <p className={styles.infoDetail}>{`${formatBytes(

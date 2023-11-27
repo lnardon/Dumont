@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 1rem;
+  padding: 2.5rem 1rem 1rem 1rem;
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 0.5rem;
   margin-right: 1rem;
@@ -17,18 +17,24 @@
   background-color: antiquewhite;
   border-radius: 50%;
   top: 1rem;
-  right: 1rem;
+  left: 1rem;
   animation: blink 3s infinite;
 }
 
 .hardwareInfoItem {
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.hardwareInfoTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
 }
 
 .title {
   font-size: 1rem;
   font-weight: 700;
-  margin-bottom: 0.25rem;
   color: antiquewhite;
 }
 
