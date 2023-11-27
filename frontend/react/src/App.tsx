@@ -3,22 +3,17 @@ import "./App.css";
 import ContainerCard from "./components/ContainerCard";
 import Header from "./components/Header";
 import HardwareInfo from "./components/HardwareInfo";
+import Modal from "./components/Modal";
 
 function App() {
+  const [isOpen, setIsOpen] = useState(false);
   const [containerList, setContainerList] = useState([
     {
       Names: "Dumont",
       Status: "Up 12 hrs",
-      Ports: "2354:2354",
+      Ports: "3322:3322",
       CreatedAt: "20231112",
       ID: "aD34SfSDV",
-    },
-    {
-      Names: "Demoiselle",
-      Status: "Up 17 hrs",
-      Ports: "4472:4472",
-      CreatedAt: "20230102",
-      ID: "JH43gd9",
     },
   ]);
 
@@ -27,7 +22,7 @@ function App() {
     const containerPort = prompt("Enter the port you want to use:");
 
     if (!repoLink || !containerPort) {
-      alert("Please enter a valid repo link and port");
+      alert("No valid repo link and port provided.");
       return;
     }
 
@@ -93,13 +88,15 @@ function App() {
                   }}
                   createdAt={container.CreatedAt}
                   id={container.ID}
-                  // status={container.Status}
                 />
               );
             })}
           </div>
         </div>
       </div>
+      {isOpen && (
+        <Modal setIsOpen={setIsOpen} renderComponent={<div>{"hello"}</div>} />
+      )}
     </>
   );
 }
