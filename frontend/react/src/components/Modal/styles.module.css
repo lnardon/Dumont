@@ -1,0 +1,69 @@
+.content {
+  position: relative;
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
+}
+
+.content {
+  width: 100%;
+  max-width: 600px;
+  background-color: antiquewhite;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  animation: slideIn 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-2rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes backdrop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes backdropOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.backdropIn {
+  animation: backdrop 0.5s ease-in-out forwards !important;
+}
+
+.backdropOut {
+  animation: backdropOut 0.3s ease forwards !important;
+}
