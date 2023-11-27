@@ -56,6 +56,7 @@ const HardwareInfoComponent: React.FC = () => {
 
   return (
     <div className={styles.container}>
+      <span className={styles.blinbkingDot}></span>
       <div className={styles.hardwareInfo}>
         <div className={styles.hardwareInfoItem}>
           <h3 className={styles.title}>CPU</h3>
