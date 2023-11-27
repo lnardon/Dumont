@@ -20,6 +20,8 @@
   top: 1rem;
   right: 1rem;
   cursor: pointer;
+  width: 2.5rem;
+  height: 2.5rem;
 }
 
 .content {
@@ -29,16 +31,28 @@
   padding: 1.5rem;
   border-radius: 0.5rem;
   animation: slideIn 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 1rem 0.25rem rgba(171, 171, 171, 0.25);
 }
 
 @keyframes slideIn {
   from {
-    transform: translateY(-2rem);
+    transform: translateY(-3rem) scale(0.8);
     opacity: 0;
   }
   to {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-3rem) scale(0.8);
+    opacity: 0;
   }
 }
 
@@ -66,4 +80,12 @@
 
 .backdropOut {
   animation: backdropOut 0.3s ease forwards !important;
+}
+
+.contentIn {
+  animation: slideIn 0.5s ease-in-out forwards !important;
+}
+
+.contentOut {
+  animation: slideOut 0.3s ease forwards !important;
 }

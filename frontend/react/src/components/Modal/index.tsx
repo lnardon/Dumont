@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
+import CloseIcon from "/assets/close.png";
 import styles from "./styles.module.css";
 
 interface ModalProps {
@@ -7,15 +8,18 @@ interface ModalProps {
 }
 
 export default function Modal({ renderComponent, setIsOpen }: ModalProps) {
-  const ref = useRef<HTMLDivElement>(null);
+  const backDropRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const handleClose = useCallback(() => {
-    if (ref.current) {
-      ref.current.classList.remove(styles.backdropIn);
-      ref.current.classList.add(styles.backdropOut);
+    if (backDropRef.current && contentRef.current) {
+      backDropRef.current.classList.remove(styles.backdropIn);
+      backDropRef.current.classList.add(styles.backdropOut);
+      contentRef.current.classList.remove(styles.contentIn);
+      contentRef.current.classList.add(styles.contentOut);
       setTimeout(() => {
         setIsOpen(false);
-      }, 500);
+      }, 250);
     }
   }, [setIsOpen]);
 
@@ -34,11 +38,17 @@ export default function Modal({ renderComponent, setIsOpen }: ModalProps) {
 
   return (
     <div className={styles.container}>
-      <div className={styles.backdrop + " " + styles.backdropIn} ref={ref}>
-        <div className={styles.content}>
-          <button className={styles.closeBtn} onClick={handleClose}>
-            X
-          </button>
+      <div
+        className={styles.backdrop + " " + styles.backdropIn}
+        ref={backDropRef}
+      >
+        <div className={styles.content} ref={contentRef}>
+          <img
+            src={CloseIcon}
+            alt="Close icon"
+            className={styles.closeBtn}
+            onClick={handleClose}
+          />
           {renderComponent}
         </div>
       </div>
