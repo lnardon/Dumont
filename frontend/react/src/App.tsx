@@ -4,6 +4,7 @@ import ContainerCard from "./components/ContainerCard";
 import Header from "./components/Header";
 import HardwareInfo from "./components/HardwareInfo";
 import Modal from "./components/Modal";
+import CreateContainer from "./components/CreateContainer";
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,31 +17,6 @@ function App() {
       ID: "aD34SfSDV",
     },
   ]);
-
-  function sendRepoLink() {
-    const repoLink = prompt("Enter the repo link:");
-    const containerPort = prompt("Enter the port you want to use:");
-
-    if (!repoLink || !containerPort) {
-      alert("No valid repo link and port provided.");
-      return;
-    }
-
-    fetch("/cloneRepo", {
-      method: "POST",
-      body: JSON.stringify({
-        repo_url: repoLink,
-        container_port: containerPort,
-      }),
-    }).then((res) => {
-      if (res.status === 201) {
-        alert("Project cloned and started");
-      } else {
-        alert("Error cloning and stating project");
-      }
-      window.location.reload();
-    });
-  }
 
   // function handleDelete(containerId: string) {
   //   fetch("/deleteContainer", {
@@ -56,25 +32,29 @@ function App() {
   //   });
   // }
 
+  function handleOpen() {
+    setIsOpen(true);
+  }
+
   useEffect(() => {
     fetch("/getContainerList", {
       method: "GET",
     }).then((parsed) => {
       parsed.json().then((data) => {
-        setContainerList(data);
+        setContainerList(data || []);
       });
     });
   }, []);
 
   return (
     <>
-      <Header handleCreate={sendRepoLink} />
+      <Header handleCreate={handleOpen} />
       <div className="content">
         <HardwareInfo />
         <div className="container">
           <div className="containerList">
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {containerList?.map((container: any) => {
+            {containerList.map((container: any) => {
               return (
                 <ContainerCard
                   key={container.ID}
@@ -95,7 +75,7 @@ function App() {
         </div>
       </div>
       {isOpen && (
-        <Modal setIsOpen={setIsOpen} renderComponent={<div>{"hello"}</div>} />
+        <Modal setIsOpen={setIsOpen} renderComponent={<CreateContainer />} />
       )}
     </>
   );

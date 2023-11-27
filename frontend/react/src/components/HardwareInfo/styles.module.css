@@ -1,22 +1,40 @@
 .container {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 1rem;
+  padding: 2.5rem 1rem 1rem 1rem;
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 0.5rem;
   margin-right: 1rem;
   flex: 1;
 }
 
+.blinbkingDot {
+  position: absolute;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: antiquewhite;
+  border-radius: 50%;
+  top: 1rem;
+  left: 1rem;
+  animation: blink 3s infinite;
+}
+
 .hardwareInfoItem {
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.hardwareInfoTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
 }
 
 .title {
   font-size: 1rem;
   font-weight: 700;
-  margin-bottom: 0.25rem;
   color: antiquewhite;
 }
 
@@ -40,4 +58,19 @@
   background-color: antiquewhite;
   border-radius: 5px;
   transition: width 0.3s ease;
+}
+
+@keyframes blink {
+  0% {
+    background-color: #555555;
+  }
+  11% {
+    background-color: antiquewhite;
+  }
+  44% {
+    background-color: #555555;
+  }
+  100% {
+    background-color: #555555;
+  }
 }
