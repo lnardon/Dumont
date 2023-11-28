@@ -8,6 +8,7 @@
   border-radius: 0.5rem;
   background-color: rgba(255, 255, 255, 0.05);
   margin-bottom: 1rem;
+  animation: appear 0.5s ease;
 }
 
 .logo {
@@ -41,7 +42,7 @@
 @keyframes appear {
   0% {
     opacity: 0;
-    transform: scale(0.64);
+    transform: scale(0.8);
   }
   100% {
     opacity: 1;

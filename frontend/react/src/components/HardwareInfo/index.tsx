@@ -66,7 +66,7 @@ const HardwareInfoComponent: React.FC = () => {
           <div className={styles.progressBar}>
             <div
               className={styles.progress}
-              style={{ width: `${cpuUsage.toFixed(0)}%` }}
+              style={{ width: `${cpuUsage.toFixed(2)}%` }}
             ></div>
           </div>
           <p className={styles.infoDetail}>Soon...</p>
@@ -74,7 +74,7 @@ const HardwareInfoComponent: React.FC = () => {
         <div className={styles.hardwareInfoItem}>
           <div className={styles.hardwareInfoTitle}>
             <h3 className={styles.title}>RAM</h3>
-            <p className={styles.infoDetail}>{ramUsage.toFixed(0)}%</p>
+            <p className={styles.infoDetail}>{ramUsage.toFixed(2)}%</p>
           </div>
           {/* TODO: Change this to a cleaner solution */}
           <div className={styles.progressBar}>
@@ -93,7 +93,7 @@ const HardwareInfoComponent: React.FC = () => {
           <div className={styles.hardwareInfoTitle}>
             <h3 className={styles.title}>Storage</h3>
             <p className={styles.infoDetail}>
-              {((100 * usedStorage) / totalStorage).toFixed(0)}%
+              {((100 * usedStorage) / totalStorage).toFixed(2)}%
             </p>
           </div>
           <div className={styles.progressBar}>

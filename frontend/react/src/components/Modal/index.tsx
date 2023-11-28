@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
-import CloseIcon from "/assets/close.png";
+import CloseIcon from "/assets/close.svg";
 import styles from "./styles.module.css";
 
 interface ModalProps {
