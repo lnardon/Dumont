@@ -15,9 +15,58 @@
   width: 100%;
   border-radius: 0.5rem;
   border: none;
+  background-color: transparent;
+  color: #070707;
+  border: 0.125rem solid #070707;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.fields {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+  white-space: nowrap;
+}
+
+.field {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  color: #070707;
+  flex: 1;
+}
+
+.name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.input {
+  width: 100%;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border: 0.125rem solid #070707;
+  background-color: transparent;
+  color: #070707;
+  outline: var(--secondary-color);
+}
+
+.createBtn {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: none;
   background-color: #070707;
   color: #fff;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
+  padding: 1rem;
 }

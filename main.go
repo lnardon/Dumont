@@ -32,12 +32,19 @@ type ServerStats struct {
 	UploadSpeed    float64 `json:"uploadSpeed"`
 }
 
+type CreateRequest struct {
+	ContainerName   string `json:"container_name"`
+	Ports           string `json:"ports"`
+	Image           string `json:"image"`
+}
+
 func main() {
     http.Handle("/", http.FileServer(http.Dir("./frontend/react/dist")))   
 	http.HandleFunc("/cloneRepo", handleClone)
 	http.HandleFunc("/getContainerList", handleContainerList)
 	http.HandleFunc("/deleteContainer", handleDeleteContainer)
 	http.HandleFunc("/getHardwareInfo", handleHardwareInfo)
+	http.HandleFunc("/createContainer", runContainer)
 
 	fmt.Println("Server started on :3322")
 	err := http.ListenAndServe(":3322", nil)
@@ -251,7 +258,7 @@ func readCPUStat() (cpuStat, error) {
 					return cpuStat{}, err
 				}
 				total += val
-				if i == 4 { // Idle value is at the 4th position
+				if i == 4 {
 					idle = val
 				}
 			}
@@ -319,23 +326,56 @@ func getNetworkSpeeds() (float64, float64, error) {
 
 	for _, iface := range ifaces {
 		if iface.Flags&net.FlagUp == 0 {
-			continue // interface down
+			continue
 		}
 		if iface.Flags&net.FlagLoopback != 0 {
-			continue // loopback interface
+			continue
 		}
-
-		// stats, err := iface.Addrs()
-		// if err != nil {
-		// 	return 0, 0, err
-		// }
-
-		// for _, stat := range stats {
-		// 	// Accumulate bytes sent and received across all interfaces
-		// 	// You will need to cast stat to the correct type and extract the data
-		// }
 	}
 	return totalBytesSent, totalBytesRecv, nil
+}
+
+
+func runContainer(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+
+	var req CreateRequest
+	err = json.Unmarshal(body, &req)
+	if err != nil {
+		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
+		return
+	}
+
+	var commandParts []string
+	commandParts = append(commandParts, "docker", "run", "-d")
+	if req.ContainerName != "" {
+		commandParts = append(commandParts, "--name", req.ContainerName)
+	}
+	if req.Ports != "" {
+		commandParts = append(commandParts, "-p", req.Ports)
+	}
+	if req.Image != "" {
+		commandParts = append(commandParts, req.Image)
+	} else {
+		http.Error(w, "Image name is required", http.StatusBadRequest)
+		return
+	}
+
+	cmd := exec.Command(commandParts[0], commandParts[1:]...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "Error running docker command: %v\n", err)
+		return
+	}
+
+	fmt.Fprintf(w, "%s\n", output)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func cmdFactory(command string)error{
