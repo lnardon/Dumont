@@ -1,7 +1,10 @@
+import { useState } from "react";
 import styles from "./styles.module.css";
 // import { fields } from "./fields";
 
 const CreateContainer: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
   function sendRepoLink() {
     const repoLink = prompt("Enter the repo link:");
     const containerPort = prompt("Enter the port you want to use:");
@@ -37,6 +40,8 @@ const CreateContainer: React.FC = () => {
       return;
     }
 
+    setIsLoading(true);
+
     fetch("/createContainer", {
       method: "POST",
       body: JSON.stringify({
@@ -53,16 +58,21 @@ const CreateContainer: React.FC = () => {
       }
       window.location.reload();
     });
+    setIsLoading(false);
   }
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Create</h1>
-      <button onClick={sendRepoLink} className={styles.cloneBtn}>
-        Clone and deploy from url
-      </button>
+      {isLoading ? (
+        <img src="/assets/loading.gif" alt="" />
+      ) : (
+        <>
+          <h1 className={styles.title}>Create</h1>
+          <button onClick={sendRepoLink} className={styles.cloneBtn}>
+            Clone and deploy from url
+          </button>
 
-      {/* <div className={styles.fields}>
+          {/* <div className={styles.fields}>
         {fields.map((field) => {
           return (
             <div className={styles.field}>
@@ -73,9 +83,11 @@ const CreateContainer: React.FC = () => {
         })}
       </div> */}
 
-      <button onClick={create} className={styles.createBtn}>
-        Create from image
-      </button>
+          <button onClick={create} className={styles.createBtn}>
+            Create from image
+          </button>
+        </>
+      )}
     </div>
   );
 };

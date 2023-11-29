@@ -21,9 +21,9 @@ const ContainerCard: React.FC<ContainerCardProps> = ({
       className={styles.container}
       onClick={() => handleOpen(ports.split(":")[1].split("->")[0])}
     >
-      <h3>{name}</h3>
+      <h3 className={styles.name}>{name}</h3>
       {/* <p>{status}</p> */}
-      <p>{ports.split(",")[0]}</p>
+      <p className={styles.ports}>{ports.split(",")[0]}</p>
     </div>
   );
 };
