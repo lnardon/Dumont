@@ -9,19 +9,27 @@
   margin-bottom: 0.5rem;
   cursor: pointer;
   animation: appear 1s ease;
+  min-width: 15rem;
+  flex: 1;
 }
 
-.deleteBtn {
-  background-color: rgba(255, 0, 0, 0.64);
-  color: rgb(255, 255, 255);
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.5rem;
+.name {
+  width: 100%;
+  font-size: 1.25rem;
+  font-weight: 900;
+  text-align: start;
+  margin-bottom: 1rem;
+  background-color: rgba(0, 0, 0, 0.32);
+  padding: 0.5rem 0.75rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.ports {
   font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  outline: none;
-  transition: all 0.2s ease-in-out;
+  font-weight: 400;
+  text-align: start;
+  margin-left: 0.5rem;
 }
 
 @keyframes appear {
