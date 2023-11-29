@@ -2,7 +2,7 @@
 
 Open source dashboard to manage docker containers on your server with an web UI.
 
-<img src="./dumont_logo.png" />
+<img src="./demo.gif" />
 
 ## Installation
 
