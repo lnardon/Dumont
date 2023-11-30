@@ -1,0 +1,73 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  background-color: var(--secondary-color);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  animation: appear 0.7s ease;
+  flex: 1;
+  width: 100%;
+  height: fit-content;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.title {
+  width: 100%;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: start;
+  background-color: rgba(0, 0, 0, 0.32);
+  padding: 0.5rem 0.75rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  border-radius: 0.25rem;
+}
+
+.closeBtn {
+  width: 3.5rem;
+  height: 100%;
+  background-color: rgba(255, 0, 0, 0.76);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 900;
+  font-size: 1.25rem;
+}
+
+.infoContainer {
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 0.5rem;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+}
+
+@keyframes appear {
+  0% {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0rem);
+  }
+}
