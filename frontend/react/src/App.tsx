@@ -5,8 +5,17 @@ import Header from "./components/Header";
 import HardwareInfo from "./components/HardwareInfo";
 import Modal from "./components/Modal";
 import CreateContainer from "./components/CreateContainer";
+import ContainerDetail from "./components/ContainerDetail";
 
 function App() {
+  const [currentView, setCurrentView] = useState("containers");
+  const [containerInfo, setContainerInfo] = useState({
+    Names: "Dumont",
+    Status: "Up 12 hrs",
+    Ports: "3322:3322",
+    CreatedAt: "20231112",
+    ID: "aD34SfSDV",
+  });
   const [isOpen, setIsOpen] = useState(false);
   const [containerList, setContainerList] = useState([
     {
@@ -18,22 +27,46 @@ function App() {
     },
   ]);
 
-  // function handleDelete(containerId: string) {
-  //   fetch("/deleteContainer", {
-  //     method: "POST",
-  //     body: JSON.stringify({ container_id: containerId }),
-  //   }).then((res) => {
-  //     if (res.status === 200) {
-  //       alert("Container deleted");
-  //     } else {
-  //       alert("Error deleting container");
-  //     }
-  //     window.location.reload();
-  //   });
-  // }
-
   function handleOpen() {
     setIsOpen(true);
+  }
+
+  function getCurrentView() {
+    switch (currentView) {
+      case "containers":
+        return (
+          <div className="containerList">
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {containerList.map((container: any) => {
+              return (
+                <ContainerCard
+                  key={container.ID}
+                  name={container.Names}
+                  ports={container.Ports}
+                  handleOpen={() => {
+                    setContainerInfo(container);
+                    setCurrentView("containerDetail");
+                  }}
+                  createdAt={container.CreatedAt}
+                  id={container.ID}
+                />
+              );
+            })}
+          </div>
+        );
+      case "containerDetail":
+        return (
+          <ContainerDetail
+            handleClose={() => setCurrentView("containers")}
+            containerName={containerInfo.Names}
+            containerImage={""}
+            containerStarted={""}
+            containerStatus={containerInfo.Status}
+            containerPorts={containerInfo.Ports}
+            containerId={containerInfo.ID}
+          />
+        );
+    }
   }
 
   useEffect(() => {
@@ -51,28 +84,7 @@ function App() {
       <Header handleCreate={handleOpen} />
       <div className="content">
         <HardwareInfo />
-        <div className="container">
-          <div className="containerList">
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {containerList.map((container: any) => {
-              return (
-                <ContainerCard
-                  key={container.ID}
-                  name={container.Names}
-                  ports={container.Ports}
-                  handleOpen={(port: string) => {
-                    window.open(
-                      `${window.location.protocol}//${window.location.hostname}:${port}`,
-                      "_blank"
-                    );
-                  }}
-                  createdAt={container.CreatedAt}
-                  id={container.ID}
-                />
-              );
-            })}
-          </div>
-        </div>
+        <div className="container">{getCurrentView()}</div>
       </div>
       {isOpen && (
         <Modal setIsOpen={setIsOpen} renderComponent={<CreateContainer />} />

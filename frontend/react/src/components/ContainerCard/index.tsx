@@ -6,7 +6,7 @@ interface ContainerCardProps {
   ports: string;
   createdAt: string;
   id: string;
-  handleOpen: (containerPort: string) => void;
+  handleOpen: () => void;
 }
 
 const ContainerCard: React.FC<ContainerCardProps> = ({
@@ -17,10 +17,7 @@ const ContainerCard: React.FC<ContainerCardProps> = ({
   handleOpen,
 }) => {
   return (
-    <div
-      className={styles.container}
-      onClick={() => handleOpen(ports.split(":")[1].split("->")[0])}
-    >
+    <div className={styles.container} onClick={() => handleOpen()}>
       <h3 className={styles.name}>{name}</h3>
       {/* <p>{status}</p> */}
       <p className={styles.ports}>{ports.split(",")[0]}</p>
