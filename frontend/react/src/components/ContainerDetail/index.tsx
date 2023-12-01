@@ -1,4 +1,3 @@
-// import { useState } from "react";
 import styles from "./styles.module.css";
 
 interface Props {
@@ -15,7 +14,7 @@ const ContainerDetail: React.FC<Props> = ({
   handleClose,
   containerName,
   containerImage,
-  containerStarted,
+  // containerStarted,
   containerStatus,
   containerPorts,
   containerId,
@@ -34,6 +33,40 @@ const ContainerDetail: React.FC<Props> = ({
     });
   }
 
+  function handleStop() {
+    fetch("/stopContainer", {
+      method: "POST",
+      body: JSON.stringify({ container_id: containerId }),
+    }).then((res) => {
+      if (res.status === 200) {
+        alert("Container stopped");
+      } else {
+        alert("Error stopping container");
+      }
+      window.location.reload();
+    });
+  }
+
+  function handleEdit() {
+    const newContainerName = prompt("Enter new container name");
+    if (newContainerName) {
+      fetch("/editContainer", {
+        method: "POST",
+        body: JSON.stringify({
+          container_id: containerId,
+          new_container_name: newContainerName,
+        }),
+      }).then((res) => {
+        if (res.status === 200) {
+          alert("Container edited");
+        } else {
+          alert("Error editing container");
+        }
+        window.location.reload();
+      });
+    }
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -43,11 +76,23 @@ const ContainerDetail: React.FC<Props> = ({
         </button>
       </div>
       <div className={styles.infoContainer}>
-        <p>ID: {containerId}</p>
-        <p>Ports: {containerPorts}</p>
-        <p>Image: {containerImage}</p>
-        <p>Status: {containerStatus}</p>
-        <p>Started: {containerStarted}</p>
+        <div className={styles.infoField}>
+          <p className={styles.infoTitle}>ID:</p>
+          <p>{containerId}</p>
+        </div>
+        <div className={styles.infoField}>
+          <p className={styles.infoTitle}>Ports:</p>
+          <p>{containerPorts}</p>
+        </div>
+        <div className={styles.infoField}>
+          <p className={styles.infoTitle}>Status:</p>
+          <p>{containerStatus}</p>
+        </div>
+        <div className={styles.infoField}>
+          <p className={styles.infoTitle}>Image:</p>
+          <p>{containerImage}</p>
+        </div>
+        {/* <p>Started: {containerStarted}</p> */}
       </div>
       <div className={styles.buttons}>
         <button
@@ -62,14 +107,9 @@ const ContainerDetail: React.FC<Props> = ({
         >
           Open Service
         </button>
-        <button
-          onClick={handleDelete}
-          style={{
-            border: "0.25rem solid red",
-          }}
-        >
-          Delete Container
-        </button>
+        <button onClick={handleEdit}>Edit Container</button>
+        <button onClick={handleStop}>Stop Container</button>
+        <button onClick={handleDelete}>Delete Container</button>
       </div>
     </div>
   );

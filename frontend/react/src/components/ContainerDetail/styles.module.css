@@ -6,7 +6,6 @@
   padding: 1rem;
   border-radius: 0.5rem;
   margin-bottom: 0.5rem;
-  cursor: pointer;
   animation: appear 0.7s ease;
   flex: 1;
   width: 100%;
@@ -44,6 +43,8 @@
   cursor: pointer;
   font-weight: 900;
   font-size: 1.25rem;
+  border-radius: 0.25rem;
+  border: none;
 }
 
 .infoContainer {
@@ -52,13 +53,39 @@
   border-radius: 0.5rem;
   width: 100%;
   margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.infoField {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  flex: 1;
+  min-width: 250px;
+  box-shadow: 0rem 0rem 1rem 0.25rem rgba(255, 255, 255, 0.1);
+}
+
+.infoTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: antiquewhite;
+  margin-bottom: 0.75rem;
+  border-bottom: 2px solid antiquewhite;
 }
 
 .buttons {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   width: 100%;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
 @keyframes appear {
