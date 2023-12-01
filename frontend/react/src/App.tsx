@@ -25,6 +25,76 @@ function App() {
       CreatedAt: "20231112",
       ID: "aD34SfSDV",
     },
+    {
+      Names: "Dumont",
+      Status: "Up 12 hrs",
+      Ports: "3322:3322",
+      CreatedAt: "20231112",
+      ID: "aD34SfSDV",
+    },
+    {
+      Names: "Dumont",
+      Status: "Up 12 hrs",
+      Ports: "3322:3322",
+      CreatedAt: "20231112",
+      ID: "aD34SfSDV",
+    },
+    {
+      Names: "Dumont",
+      Status: "Up 12 hrs",
+      Ports: "3322:3322",
+      CreatedAt: "20231112",
+      ID: "aD34SfSDV",
+    },
+    {
+      Names: "Dumont",
+      Status: "Up 12 hrs",
+      Ports: "3322:3322",
+      CreatedAt: "20231112",
+      ID: "aD34SfSDV",
+    },
+    {
+      Names: "Dumont",
+      Status: "Up 12 hrs",
+      Ports: "3322:3322",
+      CreatedAt: "20231112",
+      ID: "aD34SfSDV",
+    },
+    {
+      Names: "Dumont",
+      Status: "Up 12 hrs",
+      Ports: "3322:3322",
+      CreatedAt: "20231112",
+      ID: "aD34SfSDV",
+    },
+    {
+      Names: "Dumont",
+      Status: "Up 12 hrs",
+      Ports: "3322:3322",
+      CreatedAt: "20231112",
+      ID: "aD34SfSDV",
+    },
+    {
+      Names: "Dumont",
+      Status: "Up 12 hrs",
+      Ports: "3322:3322",
+      CreatedAt: "20231112",
+      ID: "aD34SfSDV",
+    },
+    {
+      Names: "Dumont",
+      Status: "Up 12 hrs",
+      Ports: "3322:3322",
+      CreatedAt: "20231112",
+      ID: "aD34SfSDV",
+    },
+    {
+      Names: "Dumont",
+      Status: "Up 12 hrs",
+      Ports: "3322:3322",
+      CreatedAt: "20231112",
+      ID: "aD34SfSDV",
+    },
   ]);
 
   function handleOpen() {
@@ -37,18 +107,17 @@ function App() {
         return (
           <div className="containerList">
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {containerList.map((container: any) => {
+            {containerList.map((container: any, index) => {
               return (
                 <ContainerCard
                   key={container.ID}
                   name={container.Names}
-                  ports={container.Ports}
                   handleOpen={() => {
                     setContainerInfo(container);
                     setCurrentView("containerDetail");
                   }}
-                  createdAt={container.CreatedAt}
-                  id={container.ID}
+                  index={index}
+                  status={container.Status}
                 />
               );
             })}
@@ -83,7 +152,9 @@ function App() {
     <>
       <Header handleCreate={handleOpen} />
       <div className="content">
-        <HardwareInfo />
+        <div className="sidebar">
+          <HardwareInfo />
+        </div>
         <div className="container">{getCurrentView()}</div>
       </div>
       {isOpen && (

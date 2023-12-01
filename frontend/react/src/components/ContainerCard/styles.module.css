@@ -8,9 +8,10 @@
   border-radius: 0.5rem;
   margin-bottom: 0.5rem;
   cursor: pointer;
-  animation: appear 1s ease;
+  animation: appear 0.7s ease forwards;
   min-width: 15rem;
   flex: 1;
+  opacity: 0;
 }
 
 .name {
@@ -18,14 +19,15 @@
   font-size: 1.25rem;
   font-weight: 900;
   text-align: start;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   background-color: rgba(0, 0, 0, 0.32);
   padding: 0.5rem 0.75rem;
   text-overflow: ellipsis;
   overflow: hidden;
+  border-radius: 0.25rem;
 }
 
-.ports {
+.status {
   font-size: 1rem;
   font-weight: 400;
   text-align: start;
@@ -35,8 +37,10 @@
 @keyframes appear {
   0% {
     opacity: 0;
+    transform: translateY(-1rem);
   }
   100% {
     opacity: 1;
+    transform: translateY(0rem);
   }
 }
