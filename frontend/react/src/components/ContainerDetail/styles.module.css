@@ -24,7 +24,7 @@
 .title {
   width: 100%;
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 900;
   text-align: start;
   background-color: rgba(0, 0, 0, 0.32);
   padding: 0.5rem 0.75rem;
@@ -60,7 +60,7 @@
 
 .infoField {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: flex-start;
   flex-direction: column;
   background-color: rgba(0, 0, 0, 0.8);
@@ -68,7 +68,7 @@
   border-radius: 0.5rem;
   flex: 1;
   min-width: 250px;
-  box-shadow: 0rem 0rem 1rem 0.25rem rgba(255, 255, 255, 0.1);
+  box-shadow: 0rem 0rem 1rem 0.25rem rgba(23, 23, 23, 0.25);
 }
 
 .infoTitle {

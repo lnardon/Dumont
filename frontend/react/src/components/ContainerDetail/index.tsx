@@ -5,20 +5,24 @@ interface Props {
   containerName: string;
   containerImage: string;
   containerStatus: string;
-  containerStarted: string;
   containerPorts: string;
   containerId: string;
+  containerNetwork: string;
+  containerSize: string;
 }
 
 const ContainerDetail: React.FC<Props> = ({
   handleClose,
   containerName,
   containerImage,
-  // containerStarted,
+  containerNetwork,
   containerStatus,
   containerPorts,
+  containerSize,
   containerId,
 }) => {
+  const isContainerRunning = containerStatus.includes("Up");
+
   function handleDelete() {
     fetch("/deleteContainer", {
       method: "POST",
@@ -67,6 +71,20 @@ const ContainerDetail: React.FC<Props> = ({
     }
   }
 
+  function handleStart() {
+    fetch("/runContainer", {
+      method: "POST",
+      body: JSON.stringify({ container_id: containerId }),
+    }).then((res) => {
+      if (res.status === 200) {
+        alert("Container started");
+      } else {
+        alert("Error starting container");
+      }
+      window.location.reload();
+    });
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -92,7 +110,14 @@ const ContainerDetail: React.FC<Props> = ({
           <p className={styles.infoTitle}>Image:</p>
           <p>{containerImage}</p>
         </div>
-        {/* <p>Started: {containerStarted}</p> */}
+        <div className={styles.infoField}>
+          <p className={styles.infoTitle}>Networks:</p>
+          <p>{containerNetwork}</p>
+        </div>
+        <div className={styles.infoField}>
+          <p className={styles.infoTitle}>Size:</p>
+          <p>{containerSize}</p>
+        </div>
       </div>
       <div className={styles.buttons}>
         <button
@@ -107,9 +132,13 @@ const ContainerDetail: React.FC<Props> = ({
         >
           Open Service
         </button>
-        <button onClick={handleEdit}>Edit Container</button>
-        <button onClick={handleStop}>Stop Container</button>
-        <button onClick={handleDelete}>Delete Container</button>
+        <button onClick={handleEdit}>Edit</button>
+        {isContainerRunning ? (
+          <button onClick={handleStop}>Stop</button>
+        ) : (
+          <button onClick={handleStart}>Start</button>
+        )}
+        <button onClick={handleDelete}>Delete</button>
       </div>
     </div>
   );
