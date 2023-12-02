@@ -64,11 +64,13 @@
   align-items: flex-start;
   flex-direction: column;
   background-color: rgba(0, 0, 0, 0.8);
-  padding: 0.5rem 1rem;
+  padding: 1rem;
   border-radius: 0.5rem;
   flex: 1;
   min-width: 250px;
-  box-shadow: 0rem 0rem 1rem 0.25rem rgba(23, 23, 23, 0.25);
+  box-shadow: 0rem 0rem 1rem 0.5rem rgba(23, 23, 23, 0.5);
+  animation: appear 0.7s ease forwards;
+  opacity: 0;
 }
 
 .infoTitle {
@@ -76,7 +78,13 @@
   font-weight: 700;
   color: antiquewhite;
   margin-bottom: 0.75rem;
-  border-bottom: 2px solid antiquewhite;
+  background-color: rgba(255, 255, 255, 0.16);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.5rem;
+}
+
+.infoText {
+  margin-left: 0.25rem;
 }
 
 .buttons {

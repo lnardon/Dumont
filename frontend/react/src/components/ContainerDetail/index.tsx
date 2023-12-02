@@ -1,3 +1,4 @@
+import { useState } from "react";
 import styles from "./styles.module.css";
 
 interface Props {
@@ -21,7 +22,10 @@ const ContainerDetail: React.FC<Props> = ({
   containerSize,
   containerId,
 }) => {
-  const isContainerRunning = containerStatus.includes("Up");
+  const amount = 50;
+  const [isContainerRunning, setIsContainerRunning] = useState(
+    containerStatus.includes("Up")
+  );
 
   function handleDelete() {
     fetch("/deleteContainer", {
@@ -33,6 +37,7 @@ const ContainerDetail: React.FC<Props> = ({
       } else {
         alert("Error deleting container");
       }
+      setIsContainerRunning(false);
       window.location.reload();
     });
   }
@@ -49,26 +54,6 @@ const ContainerDetail: React.FC<Props> = ({
       }
       window.location.reload();
     });
-  }
-
-  function handleEdit() {
-    const newContainerName = prompt("Enter new container name");
-    if (newContainerName) {
-      fetch("/editContainer", {
-        method: "POST",
-        body: JSON.stringify({
-          container_id: containerId,
-          new_container_name: newContainerName,
-        }),
-      }).then((res) => {
-        if (res.status === 200) {
-          alert("Container edited");
-        } else {
-          alert("Error editing container");
-        }
-        window.location.reload();
-      });
-    }
   }
 
   function handleStart() {
@@ -93,48 +78,67 @@ const ContainerDetail: React.FC<Props> = ({
           X
         </button>
       </div>
-      <div className={styles.infoContainer}>
+      <div
+        className={styles.infoContainer}
+        style={{ animationDelay: 1 * amount + "ms" }}
+      >
         <div className={styles.infoField}>
           <p className={styles.infoTitle}>ID:</p>
-          <p>{containerId}</p>
+          <p className={styles.infoText}>{containerId}</p>
         </div>
-        <div className={styles.infoField}>
+        <div
+          className={styles.infoField}
+          style={{ animationDelay: 2 * amount + "ms" }}
+        >
           <p className={styles.infoTitle}>Ports:</p>
-          <p>{containerPorts}</p>
+          <p className={styles.infoText}>{containerPorts}</p>
         </div>
-        <div className={styles.infoField}>
+        <div
+          className={styles.infoField}
+          style={{ animationDelay: 3 * amount + "ms" }}
+        >
           <p className={styles.infoTitle}>Status:</p>
-          <p>{containerStatus}</p>
+          <p className={styles.infoText}>{containerStatus}</p>
         </div>
-        <div className={styles.infoField}>
+        <div
+          className={styles.infoField}
+          style={{ animationDelay: 4 * amount + "ms" }}
+        >
           <p className={styles.infoTitle}>Image:</p>
-          <p>{containerImage}</p>
+          <p className={styles.infoText}>{containerImage}</p>
         </div>
-        <div className={styles.infoField}>
+        <div
+          className={styles.infoField}
+          style={{ animationDelay: 5 * amount + "ms" }}
+        >
           <p className={styles.infoTitle}>Networks:</p>
-          <p>{containerNetwork}</p>
+          <p className={styles.infoText}>{containerNetwork}</p>
         </div>
-        <div className={styles.infoField}>
+        <div
+          className={styles.infoField}
+          style={{ animationDelay: 6 * amount + "ms" }}
+        >
           <p className={styles.infoTitle}>Size:</p>
-          <p>{containerSize}</p>
+          <p className={styles.infoText}>{containerSize}</p>
         </div>
       </div>
       <div className={styles.buttons}>
-        <button
-          onClick={() => {
-            window.open(
-              `${window.location.protocol}//${window.location.hostname}:${
-                containerPorts.split(":")[1].split("->")[0]
-              }`,
-              "_blank"
-            );
-          }}
-        >
-          Open Service
-        </button>
-        <button onClick={handleEdit}>Edit</button>
         {isContainerRunning ? (
-          <button onClick={handleStop}>Stop</button>
+          <>
+            <button
+              onClick={() => {
+                window.open(
+                  `${window.location.protocol}//${window.location.hostname}:${
+                    containerPorts.split(":")[1].split("->")[0]
+                  }`,
+                  "_blank"
+                );
+              }}
+            >
+              Open Service
+            </button>
+            <button onClick={handleStop}>Stop</button>
+          </>
         ) : (
           <button onClick={handleStart}>Start</button>
         )}

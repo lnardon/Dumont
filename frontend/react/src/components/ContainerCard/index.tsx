@@ -17,7 +17,7 @@ const ContainerCard: React.FC<ContainerCardProps> = ({
     <div
       className={styles.container}
       onClick={() => handleOpen()}
-      style={{ animationDelay: index * 42 + "ms" }}
+      style={{ animationDelay: index * 50 + "ms" }}
     >
       <h3 className={styles.name}>{name}</h3>
       <p className={styles.status}>{status}</p>

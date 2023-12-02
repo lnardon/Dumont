@@ -68,7 +68,7 @@ function App() {
     }
   }
 
-  useEffect(() => {
+  function getInfo() {
     fetch("/getContainerList", {
       method: "GET",
     }).then((parsed) => {
@@ -76,6 +76,17 @@ function App() {
         setContainerList(data);
       });
     });
+  }
+
+  useEffect(() => {
+    getInfo();
+    const interval = setInterval(async () => {
+      getInfo();
+    }, 5000);
+
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   return (
