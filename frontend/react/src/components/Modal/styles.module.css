@@ -35,8 +35,9 @@
   background-color: antiquewhite;
   padding: 1.5rem;
   border-radius: 0.5rem;
-  animation: slideIn 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: slideIn 0.5s ease;
   box-shadow: 0 0 1rem 0.25rem rgba(171, 171, 171, 0.25);
+  margin: 1rem;
 }
 
 @keyframes slideIn {

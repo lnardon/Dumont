@@ -21,6 +21,7 @@ type Request struct {
 	RepoURL string `json:"repo_url"`
 	Port string `json:"container_port"`
 	ContainerId string `json:"container_id"`
+	ContainerName string `json:"container_name"`
 }
 
 type ServerStats struct {
@@ -36,6 +37,7 @@ type CreateRequest struct {
 	ContainerName   string `json:"container_name"`
 	Ports           string `json:"ports"`
 	Image           string `json:"image"`
+	Volume           string `json:"volume"`
 }
 
 func main() {
@@ -360,6 +362,9 @@ func startContainer(w http.ResponseWriter, r *http.Request) {
 	}
 	if req.Ports != "" {
 		commandParts = append(commandParts, "-p", req.Ports)
+	}
+	if req.Volume != "" {
+		commandParts = append(commandParts, "-v", req.Volume)
 	}
 	if req.Image != "" {
 		commandParts = append(commandParts, req.Image)

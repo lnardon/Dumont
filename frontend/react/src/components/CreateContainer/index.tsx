@@ -1,15 +1,18 @@
 import { useState } from "react";
 import styles from "./styles.module.css";
-// import { fields } from "./fields";
+import LoaderGif from "/assets/loader.gif";
 
 const CreateContainer: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [imageName, setImageName] = useState("");
+  const [ports, setPorts] = useState("");
+  const [containerName, setContainerName] = useState("");
+  const [volume, setvolume] = useState("");
+  const [repoLink, setRepoLink] = useState("");
+  const [isCloneField, setIsCloneField] = useState(false);
 
   function sendRepoLink() {
-    const repoLink = prompt("Enter the repo link:");
-    const containerPort = prompt("Enter the port you want to use:");
-
-    if (!repoLink || !containerPort) {
+    if (!repoLink || !ports) {
       alert("No valid repo link and port provided.");
       return;
     }
@@ -18,7 +21,8 @@ const CreateContainer: React.FC = () => {
       method: "POST",
       body: JSON.stringify({
         repo_url: repoLink,
-        container_port: containerPort,
+        container_port: ports,
+        containerName: containerName.replace(" ", ""),
       }),
     }).then((res) => {
       if (res.status === 200 || res.status === 201) {
@@ -31,60 +35,109 @@ const CreateContainer: React.FC = () => {
   }
 
   function create() {
-    const containerName = prompt("Enter the container name:");
-    const containerPort = prompt("Enter the port you want to use:");
-    const containerImage = prompt("Enter the image you want to use:");
-
-    if (!containerName || !containerPort) {
-      alert("No valid container name and port provided.");
+    setIsLoading(true);
+    if (!containerName || !ports || !imageName) {
+      alert("No valid container name, port or image provided.");
+      setIsLoading(false);
       return;
     }
-
-    setIsLoading(true);
 
     fetch("/createContainer", {
       method: "POST",
       body: JSON.stringify({
-        container_name: containerName,
-        ports: containerPort,
-        image: containerImage,
+        container_name: containerName.replace(" ", ""),
+        ports: ports,
+        image: imageName,
+        volume: volume,
       }),
     }).then((res) => {
-      console.log(res);
       if (res.status === 201 || res.status === 200) {
         alert("Container created");
       } else {
-        alert("Error creating container");
+        alert("Error creating container:" + res);
       }
       window.location.reload();
+      setIsLoading(false);
     });
-    setIsLoading(false);
   }
 
   return (
     <div className={styles.container}>
       {isLoading ? (
-        <img src="/assets/loading.gif" alt="" />
+        <>
+          <img className={styles.loader} src={LoaderGif} alt="Loader" />
+          <h2 className={styles.loadingText}>Creating</h2>
+        </>
       ) : (
         <>
           <h1 className={styles.title}>Create</h1>
-          <button onClick={sendRepoLink} className={styles.cloneBtn}>
-            Clone and deploy from url
-          </button>
-
-          {/* <div className={styles.fields}>
-        {fields.map((field) => {
-          return (
+          <div className={styles.fields}>
+            {!isCloneField ? (
+              <div className={styles.field}>
+                <label className={styles.name}>Image name:</label>
+                <input
+                  type="text"
+                  className={styles.input}
+                  value={imageName}
+                  onChange={(e) => setImageName(e.target.value)}
+                  placeholder="nginx"
+                />
+              </div>
+            ) : (
+              <div className={styles.field}>
+                <label className={styles.name}>Repository url:</label>
+                <input
+                  type="text"
+                  className={styles.input}
+                  value={repoLink}
+                  onChange={(e) => setRepoLink(e.target.value)}
+                  placeholder="https://github.com/lnardon/Dumont.git"
+                />
+              </div>
+            )}
             <div className={styles.field}>
-              <label className={styles.name}>{field.name}</label>
-              <input type={field.type} className={styles.input} />
+              <label className={styles.name}>Port:</label>
+              <input
+                type="text"
+                className={styles.input}
+                value={ports}
+                onChange={(e) => setPorts(e.target.value)}
+                placeholder="3000:80"
+              />
             </div>
-          );
-        })}
-      </div> */}
+            <div className={styles.field}>
+              <label className={styles.name}>Container name:</label>
+              <input
+                type="text"
+                className={styles.input}
+                value={containerName}
+                onChange={(e) => setContainerName(e.target.value)}
+                placeholder="Dumont"
+              />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.name}>Volume:</label>
+              <input
+                type="text"
+                className={styles.input}
+                value={volume}
+                onChange={(e) => setvolume(e.target.value)}
+                placeholder="/app:/app/container (optional)"
+              />
+            </div>
+          </div>
 
-          <button onClick={create} className={styles.createBtn}>
-            Create from image
+          <button
+            onClick={!isCloneField ? create : sendRepoLink}
+            className={styles.createBtn}
+          >
+            Done
+          </button>
+          <button
+            onClick={() => setIsCloneField((old) => !old)}
+            className={styles.cloneBtn}
+          >
+            {isCloneField ? "Create from image" : "Create from repository"}
           </button>
         </>
       )}

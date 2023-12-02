@@ -33,7 +33,7 @@ export default function Header({ handleCreate }: HeaderProps) {
       <img className={styles.logo} src="/assets/dumont_logo.png" alt="" />
       <span className={styles.time}>{getCurrentTime()}</span>
       <button className={styles.button} onClick={handleCreate}>
-        Create +
+        +
       </button>
     </div>
   );

@@ -17,20 +17,21 @@
   border: none;
   background-color: transparent;
   color: #070707;
-  border: 0.125rem solid #070707;
+  border: 0.25rem solid var(--secondary-color);
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 700;
   cursor: pointer;
   margin-bottom: 1rem;
+  color: #171717;
+  outline: none;
 }
 
 .fields {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  margin-top: 2rem;
-  flex-wrap: wrap;
-  white-space: nowrap;
+  flex-direction: column;
+  margin-bottom: 2rem;
 }
 
 .field {
@@ -40,22 +41,35 @@
   align-items: flex-start;
   color: #070707;
   flex: 1;
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.5s ease;
+  animation: appear 0.5s ease;
 }
 
 .name {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
+  margin-bottom: 0.125rem;
+  color: #171717;
+  background-color: rgba(0, 0, 0, 0.72);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: antiquewhite;
+  transition: all 0.5s ease;
+  animation: appear 0.5s ease;
 }
 
 .input {
   width: 100%;
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 500;
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-  border: 0.125rem solid #070707;
+  padding: 0.75rem 0.25rem;
+  border-radius: 0.5rem;
+  border: none;
   background-color: transparent;
-  color: #070707;
+  color: #171717;
   outline: var(--secondary-color);
 }
 
@@ -63,10 +77,33 @@
   width: 100%;
   border-radius: 0.5rem;
   border: none;
-  background-color: #070707;
+  background-color: var(--secondary-color);
   color: #fff;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 700;
   cursor: pointer;
   padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.loader {
+  width: 11rem;
+}
+
+.loadingText {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #070707;
+}
+
+@keyframes appear {
+  0% {
+    opacity: 0;
+    /* transform: scale(0.8); */
+  }
+  100% {
+    opacity: 1;
+    /* transform: scale(1); */
+  }
 }
