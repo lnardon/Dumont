@@ -7,6 +7,6 @@ build-frontend:
 	cd $(FRONTEND_DIR) && npm install && npm run build
 
 run-server:
-	cd $(GO_DIR) && sudo go run $(SERVER_FILE)
+	cd $(GO_DIR) && go run $(SERVER_FILE)
 
 all: build-frontend run-server

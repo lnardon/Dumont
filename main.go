@@ -44,7 +44,9 @@ func main() {
 	http.HandleFunc("/getContainerList", handleContainerList)
 	http.HandleFunc("/deleteContainer", handleDeleteContainer)
 	http.HandleFunc("/getHardwareInfo", handleHardwareInfo)
-	http.HandleFunc("/createContainer", runContainer)
+	http.HandleFunc("/createContainer", startContainer)
+	http.HandleFunc("/stopContainer", stopContainer)
+	http.HandleFunc("/runContainer", runContainerById)
 
 	fmt.Println("Server started on :3322")
 	err := http.ListenAndServe(":3322", nil)
@@ -336,7 +338,7 @@ func getNetworkSpeeds() (float64, float64, error) {
 }
 
 
-func runContainer(w http.ResponseWriter, r *http.Request) {
+func startContainer(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Error reading request body", http.StatusInternalServerError)
@@ -377,6 +379,50 @@ func runContainer(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s\n", output)
 	w.WriteHeader(http.StatusCreated)
 }
+
+func stopContainer(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+
+	var req Request
+	err = json.Unmarshal(body, &req)
+	if err != nil {
+		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
+		return
+	}
+
+	if err := cmdFactory("docker stop " + req.ContainerId); err != nil {
+		http.Error(w, fmt.Sprintf("Error stoping container: %s", err), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func runContainerById(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
+
+	var req Request
+	err = json.Unmarshal(body, &req)
+	if err != nil {
+		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
+		return
+	}
+
+	if err := cmdFactory("docker start " + req.ContainerId); err != nil {
+		http.Error(w, fmt.Sprintf("Error running container: %s", err), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+} 
 
 func cmdFactory(command string)error{
     args := strings.Fields(command)

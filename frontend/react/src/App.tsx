@@ -7,25 +7,24 @@ import Modal from "./components/Modal";
 import CreateContainer from "./components/CreateContainer";
 import ContainerDetail from "./components/ContainerDetail";
 
+type ContainerCardInfo = {
+  Names: string;
+  Status: string;
+};
+
 function App() {
   const [currentView, setCurrentView] = useState("containers");
   const [containerInfo, setContainerInfo] = useState({
-    Names: "Dumont",
-    Status: "Up 12 hrs",
-    Ports: "3322:3322",
-    CreatedAt: "20231112",
-    ID: "aD34SfSDV",
+    Names: "",
+    Status: "",
+    Ports: "",
+    ID: "",
+    Image: "",
+    Networks: "",
+    Size: "",
   });
   const [isOpen, setIsOpen] = useState(false);
-  const [containerList, setContainerList] = useState([
-    {
-      Names: "Dumont",
-      Status: "Up 12 hrs",
-      Ports: "3322:3322",
-      CreatedAt: "20231112",
-      ID: "aD34SfSDV",
-    },
-  ]);
+  const [containerList, setContainerList] = useState<ContainerCardInfo[]>([]);
 
   function handleOpen() {
     setIsOpen(true);
@@ -37,18 +36,17 @@ function App() {
         return (
           <div className="containerList">
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {containerList.map((container: any) => {
+            {containerList.map((container: any, index) => {
               return (
                 <ContainerCard
                   key={container.ID}
                   name={container.Names}
-                  ports={container.Ports}
                   handleOpen={() => {
                     setContainerInfo(container);
                     setCurrentView("containerDetail");
                   }}
-                  createdAt={container.CreatedAt}
-                  id={container.ID}
+                  index={index}
+                  status={container.Status}
                 />
               );
             })}
@@ -59,31 +57,45 @@ function App() {
           <ContainerDetail
             handleClose={() => setCurrentView("containers")}
             containerName={containerInfo.Names}
-            containerImage={""}
-            containerStarted={""}
+            containerImage={containerInfo.Image}
             containerStatus={containerInfo.Status}
             containerPorts={containerInfo.Ports}
+            containerNetwork={containerInfo.Networks}
             containerId={containerInfo.ID}
+            containerSize={containerInfo.Size}
           />
         );
     }
   }
 
-  useEffect(() => {
+  function getInfo() {
     fetch("/getContainerList", {
       method: "GET",
     }).then((parsed) => {
       parsed.json().then((data) => {
-        setContainerList(data || []);
+        setContainerList(data);
       });
     });
+  }
+
+  useEffect(() => {
+    getInfo();
+    const interval = setInterval(async () => {
+      getInfo();
+    }, 5000);
+
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   return (
     <>
       <Header handleCreate={handleOpen} />
       <div className="content">
-        <HardwareInfo />
+        <div className="sidebar">
+          <HardwareInfo />
+        </div>
         <div className="container">{getCurrentView()}</div>
       </div>
       {isOpen && (
