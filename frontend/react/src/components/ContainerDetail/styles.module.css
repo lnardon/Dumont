@@ -96,6 +96,23 @@
   flex-wrap: wrap;
 }
 
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(27, 17, 27);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  color: antiquewhite;
+  margin-bottom: 0.5rem;
+  width: 10rem;
+}
+
 @keyframes appear {
   0% {
     opacity: 0;

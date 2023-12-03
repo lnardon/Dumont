@@ -3,6 +3,7 @@ import styles from "./styles.module.css";
 
 const HardwareInfoComponent: React.FC = () => {
   const [cpuInfo, setCpuInfo] = useState("0%");
+  const [cpuClock, setCpuClock] = useState(0);
   const [ramInfo, setRamInfo] = useState("0");
   const [cpuUsage, setCpuUsage] = useState(0);
   const [ramUsage, setRamUsage] = useState(0);
@@ -20,6 +21,7 @@ const HardwareInfoComponent: React.FC = () => {
     setRamUsage(ramUsageValue);
     setUsedStorage(data.usedStorage);
     setTotalStorage(data.totalStorage);
+    setCpuClock(data.cpuClockSpeed);
   }
 
   function formatBytes(bytes: number, decimals = 2) {
@@ -41,6 +43,14 @@ const HardwareInfoComponent: React.FC = () => {
 
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+  }
+
+  function formatFrequency(mhz: number): string {
+    if (mhz >= 1000) {
+      return `${(mhz / 1000).toFixed(1)} GHz`;
+    } else {
+      return `${mhz.toFixed(0)} MHz`;
+    }
   }
 
   useEffect(() => {
@@ -69,7 +79,7 @@ const HardwareInfoComponent: React.FC = () => {
               style={{ width: `${cpuUsage.toFixed(2)}%` }}
             ></div>
           </div>
-          <p className={styles.infoDetail}>Soon...</p>
+          <p className={styles.infoDetail}>{formatFrequency(cpuClock)}</p>
         </div>
         <div className={styles.hardwareInfoItem}>
           <div className={styles.hardwareInfoTitle}>

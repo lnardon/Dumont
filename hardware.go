@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 
 type ServerStats struct {
 	CPUUsage string `json:"cpu_usage"`
+	CPUClockSpeed float64 `json:"cpuClockSpeed"`
 	RAMUsage string `json:"ram_usage"`
 	TotalStorage   float64 `json:"totalStorage"`
 	UsedStorage   float64 `json:"usedStorage"`
@@ -35,6 +37,12 @@ func HandleHardwareInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cpuClockSpeed, err := getCPUClockSpeed()
+    if err != nil {
+        http.Error(w, fmt.Sprintf("Error getting CPU clock speed: %s", err), http.StatusInternalServerError)
+        return
+    }
+
 	ramUsage, err := getRAMUsage()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error getting RAM usage: %s", err), http.StatusInternalServerError)
@@ -49,6 +57,7 @@ func HandleHardwareInfo(w http.ResponseWriter, r *http.Request) {
 
 	stats := ServerStats{
 		CPUUsage:      cpuUsage,
+		CPUClockSpeed: cpuClockSpeed,
 		RAMUsage:      ramUsage,
 		TotalStorage:  totalStorage,
 		UsedStorage:  usedStorage,
@@ -102,6 +111,36 @@ func readCPUStat() (CpuStat, error) {
 		}
 	}
 	return CpuStat{}, fmt.Errorf("cpu info not found")
+}
+
+func getCPUClockSpeed() (float64, error) {
+    file, err := os.Open("/proc/cpuinfo")
+    if err != nil {
+        return 0, err
+    }
+    defer file.Close()
+
+    scanner := bufio.NewScanner(file)
+    for scanner.Scan() {
+        line := scanner.Text()
+        if strings.HasPrefix(line, "cpu MHz") {
+            parts := strings.Split(line, ":")
+            if len(parts) == 2 {
+                speedStr := strings.TrimSpace(parts[1])
+                speed, err := strconv.ParseFloat(speedStr, 64)
+                if err != nil {
+                    return 0, err
+                }
+                return speed, nil
+            }
+        }
+    }
+
+    if err := scanner.Err(); err != nil {
+        return 0, err
+    }
+
+    return 0, fmt.Errorf("CPU clock speed not found")
 }
 
 func getRAMUsage() (string, error) {
