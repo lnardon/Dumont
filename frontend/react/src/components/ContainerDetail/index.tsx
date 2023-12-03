@@ -126,6 +126,7 @@ const ContainerDetail: React.FC<Props> = ({
         {isContainerRunning ? (
           <>
             <button
+              className={styles.button}
               onClick={() => {
                 window.open(
                   `${window.location.protocol}//${window.location.hostname}:${
@@ -135,14 +136,23 @@ const ContainerDetail: React.FC<Props> = ({
                 );
               }}
             >
-              Open Service
+              Open
             </button>
-            <button onClick={handleStop}>Stop</button>
+            <button onClick={handleStop} className={styles.button}>
+              Stop
+            </button>
           </>
         ) : (
-          <button onClick={handleStart}>Start</button>
+          <button onClick={handleStart} className={styles.button}>
+            Start
+          </button>
         )}
-        <button onClick={handleDelete}>Delete</button>
+        <button
+          onClick={handleDelete}
+          className={styles.button + " " + styles.deleteBtn}
+        >
+          Delete
+        </button>
       </div>
     </div>
   );

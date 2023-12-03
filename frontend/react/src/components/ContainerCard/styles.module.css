@@ -32,6 +32,8 @@
   font-weight: 400;
   text-align: start;
   margin-left: 0.5rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 @keyframes appear {

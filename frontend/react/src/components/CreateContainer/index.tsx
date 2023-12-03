@@ -3,6 +3,7 @@ import styles from "./styles.module.css";
 import LoaderGif from "/assets/loader.gif";
 
 const CreateContainer: React.FC = () => {
+  const delay = 32;
   const [isLoading, setIsLoading] = useState(false);
   const [imageName, setImageName] = useState("");
   const [ports, setPorts] = useState("");
@@ -54,7 +55,7 @@ const CreateContainer: React.FC = () => {
       if (res.status === 201 || res.status === 200) {
         alert("Container created");
       } else {
-        alert("Error creating container:" + res);
+        alert("Error creating container");
       }
       window.location.reload();
       setIsLoading(false);
@@ -73,7 +74,10 @@ const CreateContainer: React.FC = () => {
           <h1 className={styles.title}>Create</h1>
           <div className={styles.fields}>
             {!isCloneField ? (
-              <div className={styles.field}>
+              <div
+                className={styles.field}
+                style={{ animationDelay: 0 * delay + "ms" }}
+              >
                 <label className={styles.name}>Image name:</label>
                 <input
                   type="text"
@@ -84,7 +88,10 @@ const CreateContainer: React.FC = () => {
                 />
               </div>
             ) : (
-              <div className={styles.field}>
+              <div
+                className={styles.field}
+                style={{ animationDelay: 1 * delay + "ms" }}
+              >
                 <label className={styles.name}>Repository url:</label>
                 <input
                   type="text"
@@ -95,7 +102,10 @@ const CreateContainer: React.FC = () => {
                 />
               </div>
             )}
-            <div className={styles.field}>
+            <div
+              className={styles.field}
+              style={{ animationDelay: 2 * delay + "ms" }}
+            >
               <label className={styles.name}>Port:</label>
               <input
                 type="text"
@@ -105,7 +115,10 @@ const CreateContainer: React.FC = () => {
                 placeholder="3000:80"
               />
             </div>
-            <div className={styles.field}>
+            <div
+              className={styles.field}
+              style={{ animationDelay: 3 * delay + "ms" }}
+            >
               <label className={styles.name}>Container name:</label>
               <input
                 type="text"
@@ -115,7 +128,10 @@ const CreateContainer: React.FC = () => {
                 placeholder="Dumont"
               />
             </div>
-            <div className={styles.field}>
+            <div
+              className={styles.field}
+              style={{ animationDelay: 4 * delay + "ms" }}
+            >
               <label className={styles.name}>Volume:</label>
               <input
                 type="text"
