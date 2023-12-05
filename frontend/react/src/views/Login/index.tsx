@@ -1,24 +1,19 @@
 import { useState } from "react";
 import styles from "./styles.module.css";
 import Logo from "/assets/dumont_logo.png";
+import { apiHandler } from "../../utils/apiHandler";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  function handleLogin() {
-    // fetch("/login", {
-    //   method: "POST",
-    //   body: JSON.stringify({
-    //     username,
-    //     password,
-    //   }),
-    // }).then((parsed) => {
-    //   parsed.json().then((data) => {
-    //     console.log(data);
-    //   });
-    // });
-    sessionStorage.setItem("jwt", "123");
+  async function handleLogin() {
+    const response = await apiHandler("/login", "POST", "application/json", {
+      username,
+      password,
+    });
+    const token = await response.text();
+    sessionStorage.setItem("token", token);
   }
 
   return (
