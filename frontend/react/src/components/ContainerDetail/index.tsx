@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styles from "./styles.module.css";
+import { apiHandler } from "../../utils/apiHandler";
 
 interface Props {
   handleClose: () => void;
@@ -27,47 +28,59 @@ const ContainerDetail: React.FC<Props> = ({
     containerStatus.includes("Up")
   );
 
-  function handleDelete() {
-    fetch("/deleteContainer", {
-      method: "POST",
-      body: JSON.stringify({ container_id: containerId }),
-    }).then((res) => {
-      if (res.status === 200) {
-        alert("Container deleted");
-      } else {
-        alert("Error deleting container");
+  async function handleDelete() {
+    const response = await apiHandler(
+      "/deleteContainer",
+      "POST",
+      "application/json",
+      {
+        container_id: containerId,
       }
-      setIsContainerRunning(false);
-      window.location.reload();
-    });
+    );
+
+    if (response.status === 200) {
+      alert("Container deleted");
+    } else {
+      alert("Error deleting container");
+    }
+    setIsContainerRunning(false);
+    window.location.reload();
   }
 
-  function handleStop() {
-    fetch("/stopContainer", {
-      method: "POST",
-      body: JSON.stringify({ container_id: containerId }),
-    }).then((res) => {
-      if (res.status === 200) {
-        alert("Container stopped");
-      } else {
-        alert("Error stopping container");
+  async function handleStop() {
+    const response = await apiHandler(
+      "/stopContainer",
+      "POST",
+      "application/json",
+      {
+        container_id: containerId,
       }
-      window.location.reload();
-    });
+    );
+
+    if (response.status === 200) {
+      alert("Container stopped");
+    } else {
+      alert("Error stopping container");
+    }
+    window.location.reload();
   }
 
-  function handleStart() {
-    fetch("/runContainer", {
-      method: "POST",
-      body: JSON.stringify({ container_id: containerId }),
-    }).then((res) => {
-      if (res.status === 200) {
-        alert("Container started");
-      } else {
-        alert("Error starting container");
+  async function handleStart() {
+    const response = await apiHandler(
+      "/runContainer",
+      "POST",
+      "application/json",
+      {
+        container_id: containerId,
       }
-      window.location.reload();
-    });
+    );
+
+    if (response.status === 200) {
+      alert("Container started");
+    } else {
+      alert("Error starting container");
+    }
+    window.location.reload();
   }
 
   return (

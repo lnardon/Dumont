@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styles from "./styles.module.css";
 import LoaderGif from "/assets/loader.gif";
+import { apiHandler } from "../../utils/apiHandler";
 
 const CreateContainer: React.FC = () => {
   const delay = 32;
@@ -12,30 +13,27 @@ const CreateContainer: React.FC = () => {
   const [repoLink, setRepoLink] = useState("");
   const [isCloneField, setIsCloneField] = useState(false);
 
-  function sendRepoLink() {
+  async function sendRepoLink() {
     if (!repoLink || !ports) {
       alert("No valid repo link and port provided.");
       return;
     }
 
-    fetch("/cloneRepo", {
-      method: "POST",
-      body: JSON.stringify({
-        repo_url: repoLink,
-        container_port: ports,
-        containerName: containerName.replace(" ", ""),
-      }),
-    }).then((res) => {
-      if (res.status === 200 || res.status === 201) {
-        alert("Project cloned and started");
-      } else {
-        alert("Error cloning and stating project");
-      }
-      window.location.reload();
+    const response = await apiHandler("/cloneRepo", "POST", "", {
+      repo_url: repoLink,
+      container_port: ports,
+      containerName: containerName.replace(" ", ""),
     });
+
+    if (response.status === 200 || response.status === 201) {
+      alert("Project cloned and started");
+    } else {
+      alert("Error cloning and stating project");
+    }
+    window.location.reload();
   }
 
-  function create() {
+  async function create() {
     setIsLoading(true);
     if (!containerName || !ports || !imageName) {
       alert("No valid container name, port or image provided.");
@@ -43,23 +41,19 @@ const CreateContainer: React.FC = () => {
       return;
     }
 
-    fetch("/createContainer", {
-      method: "POST",
-      body: JSON.stringify({
-        container_name: containerName.replace(" ", ""),
-        ports: ports,
-        image: imageName,
-        volume: volume,
-      }),
-    }).then((res) => {
-      if (res.status === 201 || res.status === 200) {
-        alert("Container created");
-      } else {
-        alert("Error creating container");
-      }
-      window.location.reload();
-      setIsLoading(false);
+    const response = await apiHandler("/createContainer", "POST", "", {
+      container_name: containerName.replace(" ", ""),
+      ports: ports,
+      image: imageName,
+      volume: volume,
     });
+
+    if (response.status === 201 || response.status === 200) {
+      alert("Container created");
+    } else {
+      alert("Error creating container");
+    }
+    window.location.reload();
   }
 
   return (
