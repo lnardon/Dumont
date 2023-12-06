@@ -58,7 +58,7 @@ const Dashboard: React.FC = () => {
         return (
           <ContainerDetail
             handleClose={() => setCurrentView("containers")}
-            containerName={containerInfo.Names[0]}
+            containerName={containerInfo.Names[0].replace("/", "")}
             containerImage={containerInfo.Image}
             containerStatus={containerInfo.Status}
             containerPorts={

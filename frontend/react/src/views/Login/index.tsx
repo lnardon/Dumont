@@ -23,31 +23,33 @@ const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
 
   return (
     <div className={styles.container}>
-      <img src={Logo} alt="Logo" className={styles.logo} />
-      <h1 className={styles.title}>Dumont</h1>
-      <div className={styles.inputs}>
-        <div className={styles.fieldContainer}>
-          <input
-            type="text"
-            placeholder="Username"
-            onChange={(e) => setUsername(e.target.value)}
-            value={username}
-            className={styles.input}
-          />
+      <div className={styles.content}>
+        <img src={Logo} alt="Logo" className={styles.logo} />
+        <h1 className={styles.title}>Dumont</h1>
+        <div className={styles.inputs}>
+          <div className={styles.fieldContainer}>
+            <input
+              type="text"
+              placeholder="Username"
+              onChange={(e) => setUsername(e.target.value)}
+              value={username}
+              className={styles.input}
+            />
+          </div>
+          <div className={styles.fieldContainer}>
+            <input
+              type="password"
+              placeholder="Password"
+              onChange={(e) => setPassword(e.target.value)}
+              value={password}
+              className={styles.input}
+            />
+          </div>
         </div>
-        <div className={styles.fieldContainer}>
-          <input
-            type="password"
-            placeholder="Password"
-            onChange={(e) => setPassword(e.target.value)}
-            value={password}
-            className={styles.input}
-          />
-        </div>
+        <button onClick={handleLogin} className={styles.button}>
+          Login
+        </button>
       </div>
-      <button onClick={handleLogin} className={styles.button}>
-        Login
-      </button>
     </div>
   );
 };
