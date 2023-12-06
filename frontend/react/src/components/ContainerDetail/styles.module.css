@@ -84,7 +84,8 @@
 }
 
 .infoText {
-  margin-left: 0.25rem;
+  margin: 0rem 0.25rem;
+  word-break: break-all;
 }
 
 .buttons {
@@ -111,6 +112,16 @@
   color: antiquewhite;
   margin-bottom: 0.5rem;
   width: 10rem;
+}
+
+@media (max-width: 700px) {
+  .buttons {
+    flex-direction: column;
+  }
+
+  .button {
+    width: 100%;
+  }
 }
 
 @keyframes appear {

@@ -10,7 +10,7 @@ interface Props {
   containerPorts: string;
   containerId: string;
   containerNetwork: string;
-  containerSize: string;
+  createdAt: number;
 }
 
 const ContainerDetail: React.FC<Props> = ({
@@ -20,7 +20,7 @@ const ContainerDetail: React.FC<Props> = ({
   containerNetwork,
   containerStatus,
   containerPorts,
-  containerSize,
+  createdAt,
   containerId,
 }) => {
   const amount = 50;
@@ -131,8 +131,10 @@ const ContainerDetail: React.FC<Props> = ({
           className={styles.infoField}
           style={{ animationDelay: 6 * amount + "ms" }}
         >
-          <p className={styles.infoTitle}>Size:</p>
-          <p className={styles.infoText}>{containerSize}</p>
+          <p className={styles.infoTitle}>Created:</p>
+          <p className={styles.infoText}>
+            {new Date(createdAt * 1000).toUTCString()}
+          </p>
         </div>
       </div>
       <div className={styles.buttons}>
@@ -143,7 +145,7 @@ const ContainerDetail: React.FC<Props> = ({
               onClick={() => {
                 window.open(
                   `${window.location.protocol}//${window.location.hostname}:${
-                    containerPorts.split(":")[1].split("->")[0]
+                    containerPorts.split(":")[0]
                   }`,
                   "_blank"
                 );
