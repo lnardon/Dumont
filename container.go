@@ -1,15 +1,18 @@
 package main
 
 import (
-	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"math/rand"
 	"net/http"
-	"os"
 	"os/exec"
-	"strings"
+
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/client"
+	"github.com/docker/go-connections/nat"
 )
 
 type Request struct {
@@ -27,90 +30,94 @@ type CreateRequest struct {
 }
 
 func StartContainer(w http.ResponseWriter, r *http.Request) {
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Error reading request body", http.StatusInternalServerError)
-		return
-	}
-	defer r.Body.Close()
 	var req CreateRequest
-	err = json.Unmarshal(body, &req)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
 		return
 	}
+	defer r.Body.Close()
 
-	var commandParts []string
-	commandParts = append(commandParts, "docker", "run", "-d")
-	if req.ContainerName != "" {
-		commandParts = append(commandParts, "--name", req.ContainerName)
-	}
-	if req.Ports != "" {
-		commandParts = append(commandParts, "-p", req.Ports)
-	}
-	if req.Volume != "" {
-		commandParts = append(commandParts, "-v", req.Volume)
-	}
-	if req.Image != "" {
-		commandParts = append(commandParts, req.Image)
-	} else {
-		http.Error(w, "Image name is required", http.StatusBadRequest)
-		return
-	}
-
-	cmd := exec.Command(commandParts[0], commandParts[1:]...)
-	output, err := cmd.CombinedOutput()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.42"))
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Error running docker command: %v\n", err)
+		http.Error(w, fmt.Sprintf("Error creating Docker client: %s", err), http.StatusInternalServerError)
+		return
+	}
+	defer cli.Close()
+
+	ctx := context.Background()
+	resp, err := cli.ContainerCreate(ctx, &container.Config{
+		Image: req.Image,
+	}, &container.HostConfig{
+		PortBindings: map[nat.Port][]nat.PortBinding{
+			nat.Port(req.Ports): {{HostPort: req.Ports}},
+		},
+		Binds: []string{req.Volume},
+	}, nil, nil, req.ContainerName)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error creating container: %s", err), http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Fprintf(w, "%s\n", output)
+	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+		http.Error(w, fmt.Sprintf("Error starting container: %s", err), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprintf(w, "Container started successfully: %s\n", resp.ID)
 	w.WriteHeader(http.StatusCreated)
 }
 
 func StopContainer(w http.ResponseWriter, r *http.Request) {
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Error reading request body", http.StatusInternalServerError)
-		return
-	}
-	defer r.Body.Close()
 	var req Request
-	err = json.Unmarshal(body, &req)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
 		return
 	}
+	defer r.Body.Close()
 
-	if err := cmdFactory("docker stop " + req.ContainerId); err != nil {
-		http.Error(w, fmt.Sprintf("Error stoping container: %s", err), http.StatusInternalServerError)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.42"))
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error creating Docker client: %s", err), http.StatusInternalServerError)
 		return
 	}
+	defer cli.Close()
+
+	ctx := context.Background()
+	if err := cli.ContainerStop(ctx, req.ContainerId, container.StopOptions{
+			Timeout: nil,
+			Signal: "SIGKILL",
+	}); err != nil {
+		http.Error(w, fmt.Sprintf("Error stopping container: %s", err), http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
+	fmt.Fprintln(w, "Container stopped successfully")
 }
 
 func RunContainerById(w http.ResponseWriter, r *http.Request) {
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Error reading request body", http.StatusInternalServerError)
+	var req Request
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
 
-	var req Request
-	err = json.Unmarshal(body, &req)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.42"))
 	if err != nil {
-		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("Error creating Docker client: %s", err), http.StatusInternalServerError)
+		return
+	}
+	defer cli.Close()
+
+	ctx := context.Background()
+	if err := cli.ContainerStart(ctx, req.ContainerId, types.ContainerStartOptions{}); err != nil {
+		http.Error(w, fmt.Sprintf("Error starting container: %s", err), http.StatusInternalServerError)
 		return
 	}
 
-	if err := cmdFactory("docker start " + req.ContainerId); err != nil {
-		http.Error(w, fmt.Sprintf("Error running container: %s", err), http.StatusInternalServerError)
-		return
-	}
 	w.WriteHeader(http.StatusOK)
+	fmt.Fprintln(w, "Container started successfully")
 }
 
 func gitClone(repoURL, dest string) error {
@@ -129,11 +136,6 @@ func dockerRun(imageName string, port string) error {
 }
 
 func HandleClone(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Only POST requests are allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	body, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
@@ -170,76 +172,58 @@ func HandleClone(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleContainerList(w http.ResponseWriter, r *http.Request) {
-    if r.Method != http.MethodGet {
-        http.Error(w, "Only GET requests are allowed", http.StatusMethodNotAllowed)
-        return
-    }
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.42"))
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error creating Docker client: %s", err), http.StatusInternalServerError)
+		return
+	}
+	defer cli.Close()
 
-    var stdoutBuf, stderrBuf bytes.Buffer
-    cmd := exec.Command("docker", "ps", "-a", "--format", "{{json .}}")
-    cmd.Stdout = &stdoutBuf
-    cmd.Stderr = &stderrBuf
+	ctx := context.Background()
+	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{All: true})
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error getting container list: %s", err), http.StatusInternalServerError)
+		return
+	}
 
-    if err := cmd.Run(); err != nil {
-        http.Error(w, fmt.Sprintf("Error getting container list: %s, Details: %s", err, stderrBuf.String()), http.StatusInternalServerError)
-        return
-    }
+	jsonContainers, err := json.Marshal(containers)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error marshaling container list: %s", err), http.StatusInternalServerError)
+		return
+	}
 
-    containerOutputs := strings.Split(stdoutBuf.String(), "\n")
-    var containers []json.RawMessage
-    for _, containerOutput := range containerOutputs {
-        if containerOutput == "" {
-            continue
-        }
-        containers = append(containers, json.RawMessage(containerOutput))
-    }
-
-    jsonContainers, err := json.Marshal(containers)
-    if err != nil {
-        http.Error(w, fmt.Sprintf("Error marshaling container list: %s", err), http.StatusInternalServerError)
-        return
-    }
-
-    w.Header().Set("Content-Type", "application/json")
-    w.WriteHeader(http.StatusOK)
-    w.Write(jsonContainers)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonContainers)
 }
 
 func HandleDeleteContainer(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Only POST requests are allowed", http.StatusMethodNotAllowed)
-		return
-	}
 	body, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
 		http.Error(w, "Error reading request body", http.StatusInternalServerError)
 		return
 	}
+
 	var req Request
 	err = json.Unmarshal(body, &req)
 	if err != nil {
 		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
 		return
 	}
-	if err := cmdFactory("docker stop " + req.ContainerId); err != nil {
-		http.Error(w, fmt.Sprintf("Error stoping container: %s", err), http.StatusInternalServerError)
-		return
-	}
-		if err := cmdFactory("docker remove " + req.ContainerId); err != nil {
-		http.Error(w, fmt.Sprintf("Error deleting container: %s", err), http.StatusInternalServerError)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-}
 
-func cmdFactory(command string)error{
-    args := strings.Fields(command)
-    if len(args) == 0 {
-        fmt.Println("No command provided")
-    }
-    cmd := exec.Command(args[0], args[1:]...)
-    cmd.Stdout = os.Stdout
-    cmd.Stderr = os.Stderr
-    return cmd.Run() 
+	cli, err := client.NewClientWithOpts(client.FromEnv,client.WithVersion("1.42"))
+	if err != nil {
+		fmt.Println("Error removing container: ", err)
+	}
+	defer cli.Close()
+
+	ctx := context.Background()
+	err = cli.ContainerRemove(ctx, req.ContainerId, types.ContainerRemoveOptions{})
+	if err != nil {
+		fmt.Println("Error removing container: ", err)
+	}
+
+	fmt.Println("Container removed successfully")
+	w.WriteHeader(http.StatusOK)
 }

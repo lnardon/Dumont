@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import ContainerDetail from "../../components/ContainerDetail";
 import ContainerCard from "../../components/ContainerCard";
@@ -15,11 +16,11 @@ type ContainerCardInfo = {
 
 const Dashboard: React.FC = () => {
   const [currentView, setCurrentView] = useState("containers");
-  const [containerInfo, setContainerInfo] = useState({
+  const [containerInfo, setContainerInfo] = useState<any>({
     Names: "",
     Status: "",
     Ports: "",
-    ID: "",
+    Id: "",
     Image: "",
     Networks: "",
     Size: "",
@@ -41,7 +42,7 @@ const Dashboard: React.FC = () => {
               return (
                 <ContainerCard
                   key={container.ID}
-                  name={container.Names}
+                  name={container.Names[0].replace("/", "")}
                   handleOpen={() => {
                     setContainerInfo(container);
                     setCurrentView("containerDetail");
@@ -57,13 +58,22 @@ const Dashboard: React.FC = () => {
         return (
           <ContainerDetail
             handleClose={() => setCurrentView("containers")}
-            containerName={containerInfo.Names}
+            containerName={containerInfo.Names[0]}
             containerImage={containerInfo.Image}
             containerStatus={containerInfo.Status}
-            containerPorts={containerInfo.Ports}
-            containerNetwork={containerInfo.Networks}
-            containerId={containerInfo.ID}
-            containerSize={containerInfo.Size}
+            containerPorts={
+              containerInfo?.Ports[0]?.PublicPort &&
+              containerInfo?.Ports[0]?.PrivatePort
+                ? containerInfo?.Ports[0]?.PublicPort +
+                  ":" +
+                  containerInfo?.Ports[0]?.PrivatePort
+                : ""
+            }
+            containerNetwork={Object.keys(
+              containerInfo?.NetworkSettings?.Networks
+            )[0].toString()}
+            containerId={containerInfo.Id}
+            createdAt={containerInfo.Created}
           />
         );
     }

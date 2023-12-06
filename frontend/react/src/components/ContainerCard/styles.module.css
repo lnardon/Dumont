@@ -34,6 +34,7 @@
   margin-left: 0.5rem;
   text-overflow: ellipsis;
   overflow: hidden;
+  width: 100%;
 }
 
 @keyframes appear {
