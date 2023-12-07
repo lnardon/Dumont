@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os/exec"
+	"strings"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -27,6 +28,7 @@ type CreateRequest struct {
 	Ports           string `json:"ports"`
 	Image           string `json:"image"`
 	Volume           string `json:"volume"`
+	RestartPolicy  string `json:"restart_policy"`
 }
 
 func StartContainer(w http.ResponseWriter, r *http.Request) {
@@ -49,9 +51,12 @@ func StartContainer(w http.ResponseWriter, r *http.Request) {
 		Image: req.Image,
 	}, &container.HostConfig{
 		PortBindings: map[nat.Port][]nat.PortBinding{
-			nat.Port(req.Ports): {{HostPort: req.Ports}},
+			nat.Port(strings.Split(req.Ports, ":")[1] + "/tcp"): {{HostPort: strings.Split(req.Ports, ":")[0]}},
 		},
-		Binds: []string{req.Volume},
+		// Binds: []string{req.Volume},	
+		RestartPolicy: container.RestartPolicy{
+			Name: req.RestartPolicy,
+		},
 	}, nil, nil, req.ContainerName)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error creating container: %s", err), http.StatusInternalServerError)
@@ -63,8 +68,8 @@ func StartContainer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Container started successfully: %s\n", resp.ID)
 	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "Container started successfully: %s\n", resp.ID)
 }
 
 func StopContainer(w http.ResponseWriter, r *http.Request) {
@@ -214,11 +219,15 @@ func HandleDeleteContainer(w http.ResponseWriter, r *http.Request) {
 
 	cli, err := client.NewClientWithOpts(client.FromEnv,client.WithVersion("1.42"))
 	if err != nil {
-		fmt.Println("Error removing container: ", err)
+		fmt.Println("Error creating sdk client: ", err)
 	}
 	defer cli.Close()
 
 	ctx := context.Background()
+	err = cli.ContainerStop(ctx, req.ContainerId, container.StopOptions{
+		Timeout: nil,
+		Signal: "SIGKILL",
+	})
 	err = cli.ContainerRemove(ctx, req.ContainerId, types.ContainerRemoveOptions{})
 	if err != nil {
 		fmt.Println("Error removing container: ", err)
