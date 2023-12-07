@@ -5,7 +5,6 @@ import ContainerCard from "../../components/ContainerCard";
 import Header from "../../components/Header";
 import HardwareInfo from "../../components/HardwareInfo";
 import CreateContainer from "../../components/CreateContainer";
-import Modal from "../../components/Modal";
 import styles from "./styles.module.css";
 import { apiHandler } from "../../utils/apiHandler";
 
@@ -25,11 +24,10 @@ const Dashboard: React.FC = () => {
     Networks: "",
     Size: "",
   });
-  const [isOpen, setIsOpen] = useState(false);
   const [containerList, setContainerList] = useState<ContainerCardInfo[]>([]);
 
   function handleOpen() {
-    setIsOpen(true);
+    setCurrentView("createContainer");
   }
 
   function getCurrentView() {
@@ -76,6 +74,11 @@ const Dashboard: React.FC = () => {
             createdAt={containerInfo.Created}
           />
         );
+
+      case "createContainer":
+        return (
+          <CreateContainer handleClose={() => setCurrentView("containers")} />
+        );
     }
   }
 
@@ -104,9 +107,6 @@ const Dashboard: React.FC = () => {
         </div>
         <div className={styles.container}>{getCurrentView()}</div>
       </div>
-      {isOpen && (
-        <Modal setIsOpen={setIsOpen} renderComponent={<CreateContainer />} />
-      )}
     </div>
   );
 };
