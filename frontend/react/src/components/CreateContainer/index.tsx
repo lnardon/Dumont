@@ -3,7 +3,11 @@ import styles from "./styles.module.css";
 import LoaderGif from "/assets/loader.gif";
 import { apiHandler } from "../../utils/apiHandler";
 
-const CreateContainer: React.FC = () => {
+type Props = {
+  handleClose: () => void;
+};
+
+function CreateContainer({ handleClose }: Props) {
   const delay = 32;
   const [isLoading, setIsLoading] = useState(false);
   const [imageName, setImageName] = useState("");
@@ -12,6 +16,7 @@ const CreateContainer: React.FC = () => {
   const [volume, setvolume] = useState("");
   const [repoLink, setRepoLink] = useState("");
   const [isCloneField, setIsCloneField] = useState(false);
+  const [restartPolicy, setRestartPolicy] = useState("no");
 
   async function sendRepoLink() {
     if (!repoLink || !ports) {
@@ -23,6 +28,7 @@ const CreateContainer: React.FC = () => {
       repo_url: repoLink,
       container_port: ports,
       containerName: containerName.replace(" ", ""),
+      restart_policy: restartPolicy,
     });
 
     if (response.status === 200 || response.status === 201) {
@@ -46,6 +52,7 @@ const CreateContainer: React.FC = () => {
       ports: ports,
       image: imageName,
       volume: volume,
+      restart_policy: restartPolicy,
     });
 
     if (response.status === 201 || response.status === 200) {
@@ -65,7 +72,12 @@ const CreateContainer: React.FC = () => {
         </>
       ) : (
         <>
-          <h1 className={styles.title}>Create</h1>
+          <div className={styles.header}>
+            <h1 className={styles.title}>Create container</h1>
+            <button onClick={handleClose} className={styles.closeBtn}>
+              X
+            </button>
+          </div>
           <div className={styles.fields}>
             {!isCloneField ? (
               <div
@@ -135,24 +147,48 @@ const CreateContainer: React.FC = () => {
                 placeholder="/app:/app/container (optional)"
               />
             </div>
+            <div
+              className={styles.field}
+              style={{ animationDelay: 4 * delay + "ms" }}
+            >
+              <label className={styles.name}>Restart Policy:</label>
+              <select
+                className={styles.select}
+                onChange={(e) => setRestartPolicy(e.target.value)}
+              >
+                <option value="no" selected className={styles.option}>
+                  No (optional)
+                </option>
+                <option className={styles.option} value="always">
+                  Always
+                </option>
+                <option className={styles.option} value="unless-stopped">
+                  Unless stopped
+                </option>
+                <option className={styles.option} value="on-failure">
+                  On Failure
+                </option>
+              </select>
+            </div>
           </div>
-
-          <button
-            onClick={!isCloneField ? create : sendRepoLink}
-            className={styles.createBtn}
-          >
-            Done
-          </button>
-          <button
-            onClick={() => setIsCloneField((old) => !old)}
-            className={styles.cloneBtn}
-          >
-            {isCloneField ? "Create from image" : "Create from repository"}
-          </button>
+          <div className={styles.buttons}>
+            <button
+              onClick={() => setIsCloneField((old) => !old)}
+              className={styles.cloneBtn}
+            >
+              {isCloneField ? "Create from image" : "Create from repository"}
+            </button>
+            <button
+              onClick={!isCloneField ? create : sendRepoLink}
+              className={styles.createBtn}
+            >
+              Done
+            </button>
+          </div>
         </>
       )}
     </div>
   );
-};
+}
 
 export default CreateContainer;

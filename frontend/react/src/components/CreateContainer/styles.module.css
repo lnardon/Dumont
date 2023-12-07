@@ -2,36 +2,64 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  padding: 1.5rem;
+  background-color: #111111;
+  border-radius: 0.5rem;
+  box-shadow: 0rem 0rem 1.25rem 0.5rem rgba(123, 123, 123, 0.08);
+  animation: popupContainer 0.7s ease forwards;
+  opacity: 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 2rem;
+  gap: 1rem;
 }
 
 .title {
+  width: 100%;
   font-size: 2rem;
   font-weight: 700;
-  margin-bottom: 2rem;
+  text-align: start;
+  padding: 0rem 0.5rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  border-radius: 0.25rem;
   color: antiquewhite;
+  animation: slideLeft 0.5s 0.1s ease forwards;
+  opacity: 0;
+  border-left: 0.5rem solid var(--secondary-color);
+  padding-left: 0.5rem;
 }
 
-.cloneBtn {
-  width: 100%;
-  border-radius: 0.5rem;
-  border: none;
-  background-color: transparent;
-  color: #070707;
-  border: 0.25rem solid var(--secondary-color);
-  font-size: 1rem;
-  font-weight: 400;
+.closeBtn {
+  width: 3rem;
+  height: 3rem;
+  background-color: rgba(255, 0, 0, 0.76);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
-  margin-bottom: 1rem;
-  color: aliceblue;
-  outline: none;
+  font-weight: 900;
+  font-size: 1.25rem;
+  border-radius: 0.25rem;
+  border: none;
+  animation: popup 0.7s 0.2s ease forwards;
+  opacity: 0;
 }
 
 .fields {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  flex-direction: column;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  border-radius: 0.5rem;
 }
 
 .field {
@@ -45,8 +73,9 @@
   padding: 1rem;
   border-radius: 0.5rem;
   transition: all 0.5s ease;
-  animation: slideDown 0.7s ease forwards;
+  animation: slideUp 0.5s 0.3s ease forwards;
   opacity: 0;
+  min-width: 17rem;
 }
 
 .name {
@@ -54,12 +83,13 @@
   font-weight: 700;
   margin-bottom: 0.125rem;
   color: #171717;
-  background-color: rgba(0, 0, 0, 0.72);
+  background-color: rgba(0, 0, 0, 0.8);
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
-  color: antiquewhite;
+  color: rgba(250, 235, 215, 1);
   transition: all 0.5s ease;
-  animation: appear 0.5s ease;
+  animation: appear 0.5s 0.1s ease forwards;
+  opacity: 0;
 }
 
 .input {
@@ -74,17 +104,74 @@
   outline: var(--secondary-color);
 }
 
-.createBtn {
+.select {
+  width: 100%;
+  font-size: 1.125rem;
+  font-weight: 500;
+  padding: 1rem 0.25rem;
+  border-radius: 0.5rem;
+  border: none;
+  background-color: transparent;
+  color: #171717;
+  outline: var(--secondary-color);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23131517' viewBox='0 0 16 16'%3E%3Cpath d='M8 10.586L3.707 6.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0l5-5a1 1 0 00-1.414-1.414L8 10.586z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position-x: 100%;
+  background-position-y: 50%;
+  padding-right: 2rem;
+  cursor: pointer;
+}
+
+.option {
+  background-color: #070709;
+  color: #fff;
+  font-size: 1.125rem;
+  font-weight: 500;
+  padding: 0.75rem 0.25rem;
+  border-radius: 0.5rem;
+  border: none;
+  outline: var(--secondary-color);
+}
+
+.buttons {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  animation: appear 0.5s 0.1s ease forwards;
+  opacity: 0;
+}
+
+.cloneBtn {
   width: 100%;
   border-radius: 0.5rem;
   border: none;
+  background-color: transparent;
+  color: #070707;
+  border: 0.25rem solid var(--secondary-color);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: aliceblue;
+  outline: none;
+  padding: 1rem;
+}
+
+.createBtn {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 0.25rem solid var(--secondary-color);
   background-color: var(--secondary-color);
   color: #fff;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   padding: 1rem;
-  margin-bottom: 1rem;
 }
 
 .loader {
@@ -116,5 +203,55 @@
   to {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(2rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideLeft {
+  from {
+    transform: translateX(-1rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes popup {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes popupContainer {
+  from {
+    transform: scale(0.92) translateY(1rem);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0rem);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 599px) {
+  .buttons {
+    flex-direction: column;
   }
 }
