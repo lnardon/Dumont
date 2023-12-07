@@ -2,7 +2,7 @@
 
 Open source dashboard to manage docker containers on your server with an web UI.
 
-<img src="./demo.gif" />
+<img src="./images/demo.gif" />
 
 ## Installation
 

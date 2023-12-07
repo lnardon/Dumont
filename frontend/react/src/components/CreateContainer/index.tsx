@@ -8,7 +8,7 @@ type Props = {
 };
 
 function CreateContainer({ handleClose }: Props) {
-  const delay = 32;
+  const delay = 40;
   const [isLoading, setIsLoading] = useState(false);
   const [imageName, setImageName] = useState("");
   const [ports, setPorts] = useState("");
