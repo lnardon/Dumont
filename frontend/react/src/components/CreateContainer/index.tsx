@@ -66,10 +66,10 @@ function CreateContainer({ handleClose }: Props) {
   return (
     <div className={styles.container}>
       {isLoading ? (
-        <>
+        <div className={styles.loaderContainer}>
+          <h2 className={styles.loadingText}>Creating container</h2>
           <img className={styles.loader} src={LoaderGif} alt="Loader" />
-          <h2 className={styles.loadingText}>Creating</h2>
-        </>
+        </div>
       ) : (
         <>
           <div className={styles.header}>
