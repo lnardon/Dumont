@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"math/rand"
 	"net/http"
 	"os/exec"
@@ -13,7 +15,9 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/docker/go-connections/nat"
+	"github.com/gorilla/websocket"
 )
 
 type Request struct {
@@ -53,7 +57,7 @@ func StartContainer(w http.ResponseWriter, r *http.Request) {
 		PortBindings: map[nat.Port][]nat.PortBinding{
 			nat.Port(strings.Split(req.Ports, ":")[1] + "/tcp"): {{HostPort: strings.Split(req.Ports, ":")[0]}},
 		},
-		// Binds: []string{req.Volume},	
+		Binds: []string{req.Volume},	
 		RestartPolicy: container.RestartPolicy{
 			Name: req.RestartPolicy,
 		},
@@ -62,7 +66,6 @@ func StartContainer(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Error creating container: %s", err), http.StatusInternalServerError)
 		return
 	}
-
 	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		http.Error(w, fmt.Sprintf("Error starting container: %s", err), http.StatusInternalServerError)
 		return
@@ -235,4 +238,125 @@ func HandleDeleteContainer(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Container removed successfully")
 	w.WriteHeader(http.StatusOK)
+}
+
+var upgrader = websocket.Upgrader{
+    ReadBufferSize:  1024,
+    WriteBufferSize: 1024,
+}
+
+func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
+    container_id := "54429bd37f6dfedf511dac04e5a92b222b0e0aa4cff4bfc229e07b12528fa945"
+
+    conn, err := upgrader.Upgrade(w, r, nil)
+    if err != nil {
+        log.Printf("WebSocket upgrade error: %v", err)
+        return
+    }
+    defer conn.Close()
+
+    cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+    if err != nil {
+        log.Printf("Docker client error: %v", err)
+        return
+    }
+
+    attachOptions := types.ContainerAttachOptions{
+        Stream: true,
+        Stdin:  true,
+        Stdout: true,
+        Stderr: true,
+    }
+    hijackedResponse, err := cli.ContainerAttach(context.Background(), container_id, attachOptions)
+    if err != nil {
+        log.Printf("Container attach error: %v", err)
+        return
+    }
+    defer hijackedResponse.Close()
+
+    ctx, cancel := context.WithCancel(context.Background())
+    defer cancel()
+
+    go func() {
+        defer cancel()
+        for {
+            _, message, err := conn.ReadMessage()
+            if err != nil {
+                log.Printf("read from WebSocket error: %v", err)
+                return
+            }
+
+            output, err := executeCommandInDocker(container_id, string(message))
+            if err != nil {
+                log.Printf("execute command error: %v", err)
+                continue
+            }
+            err = conn.WriteMessage(websocket.BinaryMessage, []byte(output))
+            if err != nil {
+                log.Printf("write to WebSocket error: %v", err)
+                return
+            }
+        }
+    }()
+
+
+    go func() {
+        defer cancel()
+        buffer := make([]byte, 4096)
+        for {
+            n, err := hijackedResponse.Reader.Read(buffer)
+            if err != nil {
+                log.Printf("read from Docker error: %v", err)
+                return
+            }
+            err = conn.WriteMessage(websocket.BinaryMessage, buffer[:n])
+            if err != nil {
+                log.Printf("write to WebSocket error: %v", err)
+                return
+            }
+        }
+    }()
+
+    <-ctx.Done()
+}
+
+func executeCommandInDocker(containerID, command string) (string, error) {
+    ctx := context.Background()
+    cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+    if err != nil {
+        return "", err
+    }
+
+    cmdParts := strings.Fields(command)
+    if len(cmdParts) == 0 {
+        return "", fmt.Errorf("invalid command")
+    }
+
+    execConfig := types.ExecConfig{
+        Cmd:          cmdParts,
+        AttachStdout: true,
+        AttachStderr: true,
+        AttachStdin:  false,
+        Tty:          false,
+    }
+
+    execID, err := cli.ContainerExecCreate(ctx, containerID, execConfig)
+    if err != nil {
+        return "", err
+    }
+
+    execAttachConfig := types.ExecStartCheck{Tty: false}
+    execAttachResponse, err := cli.ContainerExecAttach(ctx, execID.ID, execAttachConfig)
+    if err != nil {
+        return "", err
+    }
+    defer execAttachResponse.Close()
+
+    var outputBuffer bytes.Buffer
+    _, err = stdcopy.StdCopy(&outputBuffer, &outputBuffer, execAttachResponse.Reader)
+    if err != nil {
+        return "", err
+    }
+
+    return outputBuffer.String(), nil
 }
