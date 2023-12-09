@@ -1,0 +1,63 @@
+.container {
+  width: 100%;
+  height: 25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background-color: #29282c;
+}
+
+.terminal {
+  position: relative;
+  width: calc(100% - 2rem);
+  height: calc(100% - 2rem);
+  padding: 1rem;
+  background-color: #070707;
+  border-radius: 0.5rem;
+}
+
+.std {
+  width: 100%;
+  height: calc(100% - 5rem);
+  color: #fff;
+  font-size: 1rem;
+  overflow: auto;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin-bottom: 0.25rem;
+  scrollbar-width: 0rem;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.std::-webkit-scrollbar {
+  display: none;
+}
+
+.content {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.inputContainer {
+  position: absolute;
+  bottom: 1rem;
+  display: flex;
+  width: calc(100% - 2rem);
+  border-radius: 0.5rem;
+}
+
+.input {
+  width: 100%;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 1rem;
+  border-radius: 0.25rem;
+  padding: 1rem;
+}
