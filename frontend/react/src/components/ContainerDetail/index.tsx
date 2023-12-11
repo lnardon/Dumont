@@ -3,6 +3,7 @@ import styles from "./styles.module.css";
 import { apiHandler } from "../../utils/apiHandler";
 import LoaderGif from "/assets/loader.gif";
 import Terminal from "../Terminal";
+import Logs from "../Logs";
 
 interface Props {
   handleClose: () => void;
@@ -32,6 +33,7 @@ const ContainerDetail: React.FC<Props> = ({
     containerStatus.includes("Up")
   );
   const [showTerminal, setShowTerminal] = useState(false);
+  const [showLogs, setShowLogs] = useState(false);
 
   async function handleDelete() {
     setMessage("Deleting container");
@@ -156,6 +158,7 @@ const ContainerDetail: React.FC<Props> = ({
             </div>
           </div>
           {showTerminal && <Terminal containerId={containerId} />}
+          {showLogs && <Logs containerId={containerId} />}
 
           <div className={styles.buttons}>
             {isContainerRunning ? (
@@ -188,6 +191,12 @@ const ContainerDetail: React.FC<Props> = ({
                 Start
               </button>
             )}
+            <button
+              onClick={() => setShowLogs(!showLogs)}
+              className={styles.button}
+            >
+              View Logs
+            </button>
             <button
               onClick={handleDelete}
               className={styles.button + " " + styles.deleteBtn}
