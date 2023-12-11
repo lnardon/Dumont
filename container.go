@@ -246,14 +246,25 @@ var upgrader = websocket.Upgrader{
 }
 
 func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
-    container_id := "54429bd37f6dfedf511dac04e5a92b222b0e0aa4cff4bfc229e07b12528fa945"
-
     conn, err := upgrader.Upgrade(w, r, nil)
     if err != nil {
         log.Printf("WebSocket upgrade error: %v", err)
         return
     }
     defer conn.Close()
+
+    _, firstMsg, err := conn.ReadMessage()
+    if err != nil {
+        log.Printf("read container ID from WebSocket error: %v", err)
+        return
+    }
+
+    messageParts := strings.SplitN(string(firstMsg), ":", 2)
+    if len(messageParts) != 2 || messageParts[0] != "container_id" {
+        log.Printf("invalid container ID format")
+        return
+    }
+    container_id := messageParts[1]
 
     cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
     if err != nil {
