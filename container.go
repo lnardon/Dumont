@@ -371,3 +371,67 @@ func executeCommandInDocker(containerID, command string) (string, error) {
 
     return outputBuffer.String(), nil
 }
+
+func LogsHandler(w http.ResponseWriter, r *http.Request) {
+    conn, err := upgrader.Upgrade(w, r, nil)
+    if err != nil {
+        log.Printf("WebSocket upgrade error: %v", err)
+        return
+    }
+    defer conn.Close()
+
+    _, firstMsg, err := conn.ReadMessage()
+    if err != nil {
+        log.Printf("read container ID from WebSocket error: %v", err)
+        return
+    }
+
+    messageParts := strings.SplitN(string(firstMsg), ":", 2)
+    if len(messageParts) != 2 || messageParts[0] != "container_id" {
+        log.Printf("invalid container ID format")
+        return
+    }
+    containerID := messageParts[1]
+
+    cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+    if err != nil {
+        log.Printf("Docker client error: %v", err)
+        return
+    }
+
+    logsOptions := types.ContainerLogsOptions{
+        ShowStdout: true,
+        ShowStderr: true,
+        Follow:     true,
+        Tail:       "all",
+    }
+
+    logStream, err := cli.ContainerLogs(context.Background(), containerID, logsOptions)
+    if err != nil {
+        log.Printf("Container logs error: %v", err)
+        return
+    }
+    defer logStream.Close()
+
+    ctx, cancel := context.WithCancel(context.Background())
+    defer cancel()
+
+    go func() {
+        defer cancel()
+        buffer := make([]byte, 4096)
+        for {
+            n, err := logStream.Read(buffer)
+            if err != nil {
+                log.Printf("read from Docker logs error: %v", err)
+                return
+            }
+            err = conn.WriteMessage(websocket.BinaryMessage, buffer[:n])
+            if err != nil {
+                log.Printf("write to WebSocket error: %v", err)
+                return
+            }
+        }
+    }()
+
+    <-ctx.Done()
+}
