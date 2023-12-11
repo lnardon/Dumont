@@ -15,6 +15,7 @@ func main() {
 	http.HandleFunc("/createContainer", verifyJWT(StartContainer))
 	http.HandleFunc("/stopContainer", verifyJWT(StopContainer))
 	http.HandleFunc("/runContainer", verifyJWT(RunContainerById))
+	http.HandleFunc("/ws", WebSocketHandler)
 	http.HandleFunc("/login", Login)
 
 	fmt.Println("Server started on :3322")

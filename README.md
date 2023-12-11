@@ -1,40 +1,36 @@
-<p style="text-align:center">
-<img src="./images/logo.png" style="width: 10rem"/>
-</p>
-
-<p style="text-align:center; font-size: 32px; font-weight: bold">
+<div align="center" width="100%">
+  <img src="./images/logo.png" style="width: 10rem"/>
+</div>
+<h1 align="center" width="100%">
     Dumont
-</p>
+</h1>
 
-<p style="text-align:center; font-size: 16px; font-weight: 400">
+<p style="text-align:center; font-size: 16px; font-weight: 400" align="center">
     Dumont is an open-source tool designed to simplify the creation and management of Docker containers via a web UI. Ideal for self-hosting, Dumont offers an intuitive interface for handling container-related tasks with ease.
 </p>
+<p align="center" width="100%">
+    <a target="_blank" href="https://hub.docker.com/r/lnardon/dumont"><img src="https://img.shields.io/docker/v/lnardon/dumont" /></a>
+     <a target="_blank" href="https://hub.docker.com/r/lnardon/dumont"><img src="https://img.shields.io/docker/pulls/lnardon/dumont" /></a> 
+</p>
 
+---
+
+  </br>
 <img src="./images/demo.gif" style="width: 100%"/>
 
-## Screenshots
+  </br>
 
-1- Login
+## **Prerequisites**
 
-<img src="./images/s0.png" style="width: 100%"/>
-
-2- Dashboard
-
-<img src="./images/s1.png" style="width: 100%"/>
-
-3- View container
-
-<img src="./images/s2.png" style="width: 100%"/>
-
-4- Create container
-
-<img src="./images/s3.png" style="width: 100%"/>
-
-## Prerequisites
+---
 
 - Docker installed on your server.
+  </br>
+  </br>
 
-## Installation
+## **Installation**
+
+---
 
 ### Using Docker Image (Docker Hub)
 
@@ -52,6 +48,8 @@ docker run -d -e JWT_SIGNING_KEY="YOURSECRETKEYHERE" -e LOGIN_USERNAME="YOURUSER
 
 3 - Access Dumont at http://localhost:3322
 
+</br>
+
 ### Build from source
 
 1 - Clone the repository and build the Docker image:
@@ -68,3 +66,26 @@ docker run -d -e JWT_SIGNING_KEY="YOURSECRETKEYHERE" -e LOGIN_USERNAME="YOURUSER
 ```
 
 3 - Access Dumont at http://localhost:3322
+
+</br>
+</br>
+</br>
+
+## **Screenshots**
+
+---
+
+Login
+<img src="./images/s0.png" style="width: 100%"/>
+
+Dashboard
+
+<img src="./images/s1.png" style="width: 100%"/>
+
+View container
+
+<img src="./images/s2.png" style="width: 100%"/>
+
+Create container
+
+<img src="./images/s3.png" style="width: 100%"/>

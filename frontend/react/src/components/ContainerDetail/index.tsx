@@ -2,6 +2,7 @@ import { useState } from "react";
 import styles from "./styles.module.css";
 import { apiHandler } from "../../utils/apiHandler";
 import LoaderGif from "/assets/loader.gif";
+import Terminal from "../Terminal";
 
 interface Props {
   handleClose: () => void;
@@ -30,6 +31,7 @@ const ContainerDetail: React.FC<Props> = ({
   const [isContainerRunning, setIsContainerRunning] = useState(
     containerStatus.includes("Up")
   );
+  const [showTerminal, setShowTerminal] = useState(false);
 
   async function handleDelete() {
     setMessage("Deleting container");
@@ -153,6 +155,8 @@ const ContainerDetail: React.FC<Props> = ({
               </p>
             </div>
           </div>
+          {showTerminal && <Terminal containerId={containerId} />}
+
           <div className={styles.buttons}>
             {isContainerRunning ? (
               <>
@@ -171,6 +175,12 @@ const ContainerDetail: React.FC<Props> = ({
                 </button>
                 <button onClick={handleStop} className={styles.button}>
                   Stop
+                </button>
+                <button
+                  onClick={() => setShowTerminal(!showTerminal)}
+                  className={styles.button + " " + styles.deleteBtn}
+                >
+                  Terminal
                 </button>
               </>
             ) : (
