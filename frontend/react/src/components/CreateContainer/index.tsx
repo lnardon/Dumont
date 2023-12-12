@@ -13,7 +13,8 @@ function CreateContainer({ handleClose }: Props) {
   const [imageName, setImageName] = useState("");
   const [ports, setPorts] = useState("");
   const [containerName, setContainerName] = useState("");
-  const [volume, setvolume] = useState("");
+  const [volumes, setvolumes] = useState("");
+  const [variables, setVariable] = useState("");
   const [repoLink, setRepoLink] = useState("");
   const [isCloneField, setIsCloneField] = useState(false);
   const [restartPolicy, setRestartPolicy] = useState("no");
@@ -51,8 +52,9 @@ function CreateContainer({ handleClose }: Props) {
       container_name: containerName.replace(" ", ""),
       ports: ports,
       image: imageName,
-      volume: volume,
+      volumes: volumes.trim().split(/\s*;\s*/),
       restart_policy: restartPolicy,
+      variables: variables.trim().split(/\s*;\s*/),
     });
 
     if (response.status === 201 || response.status === 200) {
@@ -142,16 +144,16 @@ function CreateContainer({ handleClose }: Props) {
               <input
                 type="text"
                 className={styles.input}
-                value={volume}
-                onChange={(e) => setvolume(e.target.value)}
+                value={volumes}
+                onChange={(e) => setvolumes(e.target.value)}
                 placeholder="/app:/app/container (optional)"
               />
             </div>
             <div
               className={styles.field}
-              style={{ animationDelay: 4 * delay + "ms" }}
+              style={{ animationDelay: 5 * delay + "ms" }}
             >
-              <label className={styles.name}>Restart Policy:</label>
+              <label className={styles.name}>Restart policy:</label>
               <select
                 className={styles.select}
                 onChange={(e) => setRestartPolicy(e.target.value)}
@@ -170,6 +172,19 @@ function CreateContainer({ handleClose }: Props) {
                 </option>
               </select>
             </div>
+          </div>
+          <div
+            className={styles.variables}
+            style={{ animationDelay: 6 * delay + "ms" }}
+          >
+            <label className={styles.name}>Environment variables:</label>
+            <input
+              type="text"
+              className={styles.input}
+              value={variables}
+              onChange={(e) => setVariable(e.target.value)}
+              placeholder="DATABASE_URL=postgres://user:pass@localhost:5432/db ; PORT=3000"
+            />
           </div>
           <div className={styles.buttons}>
             <button
