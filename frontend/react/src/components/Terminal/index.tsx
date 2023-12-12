@@ -69,7 +69,7 @@ function Terminal({ containerId }: { containerId: string }) {
               opacity: 0,
             }}
           >
-            &#10003; Successfully connected!
+            &#10003; Terminal connected!
           </span>
         )}
         <div className={styles.std} ref={listRef}>

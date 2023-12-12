@@ -195,7 +195,7 @@ const ContainerDetail: React.FC<Props> = ({
               onClick={() => setShowLogs(!showLogs)}
               className={styles.button}
             >
-              View Logs
+              {showLogs ? "Hide logs" : "Show logs"}
             </button>
             <button
               onClick={handleDelete}
