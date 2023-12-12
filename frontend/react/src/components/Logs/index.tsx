@@ -8,20 +8,21 @@ function Logs({ containerId }: { containerId: string }) {
   const listRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    ws.current = new WebSocket("ws://localhost:3321/logs");
-    ws.current.binaryType = "arraybuffer";
-    ws.current.onopen = () => {
-      console.log("Connected to WebSocket");
-      setIsSocketConnected(true);
-      ws.current?.send("container_id:" + containerId);
-    };
+    setTimeout(() => {
+      ws.current = new WebSocket("ws://localhost:3322/logs");
+      ws.current.binaryType = "arraybuffer";
+      ws.current.onopen = () => {
+        console.log("Connected to WebSocket");
+        setIsSocketConnected(true);
+        ws.current?.send("container_id:" + containerId);
+      };
 
-    ws.current.onmessage = (event) => {
-      const message = new Uint8Array(event.data);
-      const str = new TextDecoder("utf-8").decode(message);
-      setData((oldString) => oldString + "|new_line|" + str);
-    };
-
+      ws.current.onmessage = (event) => {
+        const message = new Uint8Array(event.data);
+        const str = new TextDecoder("utf-8").decode(message);
+        setData((oldString) => oldString + "|new_line|" + str);
+      };
+    }, 750);
     return () => {
       if (ws.current) {
         ws.current.close();

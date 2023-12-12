@@ -31,8 +31,9 @@ type CreateRequest struct {
 	ContainerName   string `json:"container_name"`
 	Ports           string `json:"ports"`
 	Image           string `json:"image"`
-	Volume           string `json:"volume"`
+	Volumes          []string `json:"volumes"`
 	RestartPolicy  string `json:"restart_policy"`
+	Variables 	 []string `json:"variables"`
 }
 
 func StartContainer(w http.ResponseWriter, r *http.Request) {
@@ -53,11 +54,12 @@ func StartContainer(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image: req.Image,
+		Env:   req.Variables,
 	}, &container.HostConfig{
 		PortBindings: map[nat.Port][]nat.PortBinding{
 			nat.Port(strings.Split(req.Ports, ":")[1] + "/tcp"): {{HostPort: strings.Split(req.Ports, ":")[0]}},
 		},
-		Binds: []string{req.Volume},	
+		Binds: req.Volumes,	
 		RestartPolicy: container.RestartPolicy{
 			Name: req.RestartPolicy,
 		},

@@ -26,7 +26,7 @@
 }
 
 .success {
-  animation: fadeIn 0.7s 0.3s ease forwards;
+  animation: fadeIn 0.5s ease forwards;
 }
 
 .std {

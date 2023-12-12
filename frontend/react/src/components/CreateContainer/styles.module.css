@@ -56,14 +56,13 @@
   width: 100%;
   display: flex;
   justify-content: space-between;
-  margin-bottom: 2rem;
   flex-wrap: wrap;
   gap: 1rem;
   border-radius: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .field {
-  margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -76,6 +75,21 @@
   animation: slideUp 0.5s 0.3s ease forwards;
   opacity: 0;
   min-width: 17rem;
+}
+
+.variables {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  color: #070707;
+  background-color: antiquewhite;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.5s ease;
+  animation: slideUp 0.5s 0.3s ease forwards;
+  opacity: 0;
+  width: 100%;
+  margin-bottom: 3rem;
 }
 
 .name {
