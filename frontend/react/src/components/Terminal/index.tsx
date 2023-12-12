@@ -27,7 +27,7 @@ function Terminal({ containerId }: { containerId: string }) {
   }
 
   useEffect(() => {
-    ws.current = new WebSocket("ws://localhost:3321/ws");
+    ws.current = new WebSocket("ws://localhost:3322/ws");
     ws.current.binaryType = "arraybuffer";
     ws.current.onopen = () => {
       console.log("Connected to WebSocket");
