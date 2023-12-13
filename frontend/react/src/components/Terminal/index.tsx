@@ -20,14 +20,14 @@ function Terminal({ containerId }: { containerId: string }) {
       setInput("");
       return;
     }
-    if (e.key === "Backspace") {
-      setInput((old) => old.slice(0, -1));
-      return;
-    }
   }
 
   useEffect(() => {
-    ws.current = new WebSocket("ws://localhost:3322/ws");
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const host = window.location.host;
+    const wsUrl = `${protocol}//${host}/ws`;
+
+    ws.current = new WebSocket(wsUrl);
     ws.current.binaryType = "arraybuffer";
     ws.current.onopen = () => {
       console.log("Connected to WebSocket");

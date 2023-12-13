@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 )
 
 type LoginRequest struct {
@@ -19,10 +19,10 @@ type LoginRequest struct {
 }
 
 func goDotEnvVariable(key string) string {
-  err := godotenv.Load(".env")
-  if err != nil {
-    log.Fatalf("Error loading .env file")
-  }
+//   err := godotenv.Load(".env")
+//   if err != nil {
+//     log.Fatalf("Error loading .env file")
+//   }
 
   return os.Getenv(key)
 }

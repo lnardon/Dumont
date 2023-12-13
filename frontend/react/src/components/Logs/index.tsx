@@ -9,7 +9,11 @@ function Logs({ containerId }: { containerId: string }) {
 
   useEffect(() => {
     setTimeout(() => {
-      ws.current = new WebSocket("ws://localhost:3322/logs");
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const host = window.location.host;
+      const wsUrl = `${protocol}//${host}/logs`;
+
+      ws.current = new WebSocket(wsUrl);
       ws.current.binaryType = "arraybuffer";
       ws.current.onopen = () => {
         console.log("Connected to WebSocket");
