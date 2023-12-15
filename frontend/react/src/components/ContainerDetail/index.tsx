@@ -2,6 +2,7 @@ import { useState } from "react";
 import styles from "./styles.module.css";
 import { apiHandler } from "../../utils/apiHandler";
 import LoaderGif from "/assets/loader.gif";
+import ResourceUsage from "../ResourceUsage";
 import Terminal from "../Terminal";
 import Logs from "../Logs";
 
@@ -115,6 +116,9 @@ const ContainerDetail: React.FC<Props> = ({
             className={styles.infoContainer}
             style={{ animationDelay: 1 * amount + "ms" }}
           >
+            <div style={{ minWidth: "100%" }}>
+              <ResourceUsage containerId={containerId} />
+            </div>
             <div className={styles.infoField}>
               <p className={styles.infoTitle}>ID:</p>
               <p className={styles.infoText}>{containerId}</p>
