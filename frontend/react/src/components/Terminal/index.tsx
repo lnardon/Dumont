@@ -2,12 +2,19 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./styles.module.css";
 
-function Terminal({ containerId }: { containerId: string }) {
+function Terminal({
+  containerId,
+  willClose,
+}: {
+  containerId: string;
+  willClose: boolean;
+}) {
   const [isSocketConnected, setIsSocketConnected] = useState(false);
   const [data, setData] = useState("");
   const [input, setInput] = useState("");
   const ws = useRef<WebSocket | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   function handleInput(e: any) {
     if (e.key === "Enter") {
@@ -55,8 +62,14 @@ function Terminal({ containerId }: { containerId: string }) {
     });
   }, [data]);
 
+  useEffect(() => {
+    if (willClose) {
+      containerRef.current?.classList.add(styles.willClose);
+    }
+  }, [willClose]);
+
   return (
-    <div className={styles.container}>
+    <div className={styles.container} ref={containerRef}>
       <div className={styles.terminal}>
         {isSocketConnected && (
           <span

@@ -53,6 +53,10 @@
   margin-bottom: 1rem;
 }
 
+.willClose {
+  animation: close 0.5s ease forwards;
+}
+
 @keyframes fadeIn {
   0% {
     opacity: 0;
@@ -83,5 +87,7 @@
   100% {
     opacity: 0;
     height: 0rem;
+    padding: 0rem;
+    margin: 0rem;
   }
 }

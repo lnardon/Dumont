@@ -35,6 +35,7 @@ const ContainerDetail: React.FC<Props> = ({
   );
   const [showTerminal, setShowTerminal] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
+  const [willClose, setWillClose] = useState(false);
 
   async function handleDelete() {
     setMessage("Deleting container");
@@ -95,6 +96,27 @@ const ContainerDetail: React.FC<Props> = ({
       alert("Error starting container");
     }
     window.location.reload();
+  }
+
+  function handleCloseAnim(component: string) {
+    const currentState = component === "terminal" ? showTerminal : showLogs;
+    if (currentState) {
+      setWillClose(true);
+      setTimeout(() => {
+        if (component === "terminal") {
+          setShowTerminal(!showTerminal);
+        } else {
+          setShowLogs(!showLogs);
+        }
+        setWillClose(false);
+      }, 750);
+    } else {
+      if (component === "terminal") {
+        setShowTerminal(!showTerminal);
+      } else {
+        setShowLogs(!showLogs);
+      }
+    }
   }
 
   return (
@@ -161,8 +183,10 @@ const ContainerDetail: React.FC<Props> = ({
               </p>
             </div>
           </div>
-          {showTerminal && <Terminal containerId={containerId} />}
-          {showLogs && <Logs containerId={containerId} />}
+          {showTerminal && (
+            <Terminal containerId={containerId} willClose={willClose} />
+          )}
+          {showLogs && <Logs containerId={containerId} willClose={willClose} />}
 
           <div className={styles.buttons}>
             {isContainerRunning ? (
@@ -184,7 +208,7 @@ const ContainerDetail: React.FC<Props> = ({
                   Stop
                 </button>
                 <button
-                  onClick={() => setShowTerminal(!showTerminal)}
+                  onClick={() => handleCloseAnim("terminal")}
                   className={styles.button + " " + styles.deleteBtn}
                 >
                   Terminal
@@ -196,7 +220,7 @@ const ContainerDetail: React.FC<Props> = ({
               </button>
             )}
             <button
-              onClick={() => setShowLogs(!showLogs)}
+              onClick={() => handleCloseAnim("logs")}
               className={styles.button}
             >
               {showLogs ? "Hide logs" : "Show logs"}

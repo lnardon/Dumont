@@ -1,11 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./styles.module.css";
 
-function Logs({ containerId }: { containerId: string }) {
+function Logs({
+  containerId,
+  willClose,
+}: {
+  containerId: string;
+  willClose: boolean;
+}) {
   const [isSocketConnected, setIsSocketConnected] = useState(false);
   const [data, setData] = useState("");
   const ws = useRef<WebSocket | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setTimeout(() => {
@@ -41,8 +48,14 @@ function Logs({ containerId }: { containerId: string }) {
     });
   }, [data]);
 
+  useEffect(() => {
+    if (willClose) {
+      containerRef.current?.classList.add(styles.willClose);
+    }
+  }, [willClose]);
+
   return (
-    <div className={styles.container}>
+    <div className={styles.container} ref={containerRef}>
       <div className={styles.terminal}>
         {isSocketConnected && (
           <span
