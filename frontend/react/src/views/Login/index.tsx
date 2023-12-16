@@ -1,22 +1,25 @@
 import { useState } from "react";
 import styles from "./styles.module.css";
 import Logo from "/assets/dumont_logo.png";
-import { apiHandler } from "../../utils/apiHandler";
+import { toast } from "react-toastify";
 
 const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   async function handleLogin() {
-    const response = await apiHandler("/login", "POST", "application/json", {
-      username,
-      password,
+    const raw = await fetch("/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
     });
-    if (response.status !== 200) {
-      alert("Login failed");
+    if (raw.status !== 200) {
+      toast.error("Login failed!");
       return;
     }
-    const token = await response.text();
+    const token = await raw.text();
     sessionStorage.setItem("token", token);
     onLogin();
   }
