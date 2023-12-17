@@ -3,54 +3,7 @@ import React, { useEffect, useState } from "react";
 import { apiHandler } from "../../utils/apiHandler";
 import styles from "./styles.module.css";
 import formatBytes from "../../utils/formatBytes";
-
-const CircleGraph = ({
-  percentage,
-  label,
-}: {
-  percentage: any;
-  label: string;
-}) => {
-  const radius = 28;
-  const circumference = 2 * Math.PI * radius;
-  const strokePct = ((100 - parseFloat(percentage)) * circumference) / 100;
-  return (
-    <svg width={64} height={64}>
-      <circle
-        r={radius}
-        cx={32}
-        cy={32}
-        fill="transparent"
-        stroke="rgba(127, 127, 156, 0.32)"
-        strokeWidth="4"
-      />
-      <circle
-        r={radius}
-        cx={32}
-        cy={32}
-        fill="transparent"
-        stroke="antiquewhite"
-        strokeWidth="4"
-        strokeDasharray={circumference}
-        strokeDashoffset={strokePct}
-        transform={`rotate(270 32 32)`}
-        style={{ transition: "all 0.7s ease" }}
-      />
-      <text
-        x="50%"
-        y="50%"
-        dy=".3em"
-        textAnchor="middle"
-        style={{ color: "antiquewhite" }}
-        fill="white"
-        fontSize="12"
-        fontWeight={700}
-      >
-        {label}
-      </text>
-    </svg>
-  );
-};
+import CircleGraph from "./CircleGraph";
 
 const ResourceUsage: React.FC<{ containerId: string }> = ({ containerId }) => {
   const [data, setData] = useState<any>({});
@@ -62,7 +15,6 @@ const ResourceUsage: React.FC<{ containerId: string }> = ({ containerId }) => {
 
     response.then((res) => {
       res.json().then((data) => {
-        console.log(data);
         setData(data);
       });
     });
@@ -70,20 +22,23 @@ const ResourceUsage: React.FC<{ containerId: string }> = ({ containerId }) => {
 
   function calculateCPUUsage() {
     const containerStats = data || {};
-    const cpuDelta =
-      containerStats?.cpu_stats?.cpu_usage?.total_usage -
-      containerStats?.precpu_stats?.cpu_usage?.total_usage;
-    const systemDelta =
-      containerStats?.cpu_stats?.system_cpu_usage -
-      containerStats?.precpu_stats?.system_cpu_usage;
-    const numberOfCPU = containerStats?.cpu_stats?.online_cpus;
-
-    if (systemDelta && numberOfCPU && systemDelta !== 0) {
-      const cpuPercentage = (cpuDelta / systemDelta) * numberOfCPU * 100.0;
-      return cpuPercentage.toFixed(2);
+    const cpuStats = containerStats.cpu_stats || {};
+    const preCpuStats = containerStats.precpu_stats || {};
+    if (!cpuStats.cpu_usage || !preCpuStats.cpu_usage) {
+      return "0";
     }
 
-    return "0";
+    const cpuDelta =
+      cpuStats.cpu_usage.total_usage - preCpuStats.cpu_usage.total_usage;
+    const systemDelta =
+      cpuStats.system_cpu_usage - preCpuStats.system_cpu_usage;
+    const numberOfCPU = cpuStats.online_cpus;
+    if (cpuDelta <= 0 || systemDelta <= 0 || numberOfCPU <= 0) {
+      return "0";
+    }
+
+    const cpuPercentage = (cpuDelta / systemDelta) * numberOfCPU * 100.0;
+    return cpuPercentage.toFixed(2);
   }
 
   useEffect(() => {
@@ -108,19 +63,88 @@ const ResourceUsage: React.FC<{ containerId: string }> = ({ containerId }) => {
         {`${(ramPercentage || 0).toFixed(2)}%`}
       </div>
       <div className={styles.infoContainer}>
-        <CircleGraph
-          percentage={
-            ((data?.networks?.eth0?.rx_bytes || 0) /
-              (data?.networks?.eth0?.rx_bytes +
-                data?.networks?.eth0?.tx_bytes || 1)) *
-            100
-          }
-          label="I / O"
-        />
+        <svg width={64} height={64}>
+          <circle
+            r={28}
+            cx={32}
+            cy={32}
+            fill="transparent"
+            stroke="rgba(127, 127, 156, 0.32)"
+            strokeWidth="4"
+          />
+          <circle
+            r={28}
+            cx={32}
+            cy={32}
+            fill="transparent"
+            stroke="#2EF657"
+            strokeWidth="4"
+            strokeDasharray={2 * Math.PI * 28}
+            strokeDashoffset={
+              -(
+                (100 -
+                  ((data?.networks?.eth0?.rx_bytes || 0) /
+                    (data?.networks?.eth0?.rx_bytes +
+                      data?.networks?.eth0?.tx_bytes || 1)) *
+                    100) *
+                (2 * Math.PI * 28)
+              ) / 100
+            }
+            transform={`rotate(270 32 32)`}
+            style={{ transition: "all 0.7s ease" }}
+          />
+          <circle
+            r={28}
+            cx={32}
+            cy={32}
+            fill="transparent"
+            stroke="#646cff"
+            strokeWidth="4"
+            strokeDasharray={2 * Math.PI * 28}
+            strokeDashoffset={Math.abs(
+              ((100 -
+                ((data?.networks?.eth0?.tx_bytes || 0) /
+                  (data?.networks?.eth0?.rx_bytes +
+                    data?.networks?.eth0?.tx_bytes || 1)) *
+                  100) *
+                (2 * Math.PI * 28)) /
+                100
+            )}
+            transform={`rotate(-90 32 32)`}
+            style={{ transition: "all 0.7s ease" }}
+          />
+          <text
+            x="50%"
+            y="50%"
+            dy=".3em"
+            textAnchor="middle"
+            fill="white"
+            fontSize="12"
+            fontWeight={700}
+          >
+            I / O
+          </text>
+        </svg>
         <p style={{ textAlign: "center" }}>
-          {`${formatBytes(data?.networks?.eth0?.rx_bytes) || 0} \u2193 / ${
+          <span
+            className={styles.arrow}
+            style={{
+              color: "#2EF657",
+            }}
+          >
+            {"\u2193"}
+          </span>
+          {`${formatBytes(data?.networks?.eth0?.rx_bytes) || 0} | ${
             formatBytes(data?.networks?.eth0?.tx_bytes) || 0
-          } \u2191`}
+          }`}
+          <span
+            className={styles.arrow}
+            style={{
+              color: "#646cff",
+            }}
+          >
+            {"\u2191"}
+          </span>
         </p>
       </div>
     </div>

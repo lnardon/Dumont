@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ToastContainer } from "react-toastify";
+import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 
@@ -18,7 +18,7 @@ function App() {
       ) : (
         <Login onLogin={() => setIsUserLogged(true)} />
       )}
-      <ToastContainer theme="dark" />
+      <ToastContainer theme="dark" transition={Slide} />
     </div>
   );
 }
