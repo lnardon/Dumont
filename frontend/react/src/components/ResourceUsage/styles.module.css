@@ -1,0 +1,28 @@
+.container {
+  display: flex;
+  align-items: start;
+  border-radius: 0.5rem;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.infoContainer {
+  border-radius: 0.5rem;
+  flex: 1;
+  min-width: 9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.arrow {
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-weight: 700;
+}

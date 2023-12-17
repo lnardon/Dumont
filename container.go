@@ -202,9 +202,71 @@ func HandleContainerList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var upContainers []types.Container
+	var downContainers []types.Container
+	for _, container := range containers {
+		if container.State == "running" {
+			upContainers = append(upContainers, container)
+		} else {
+			downContainers = append(downContainers, container)
+		}
+	}
+	upContainers = append(upContainers, downContainers...)
+	jsonContainers, err = json.Marshal(upContainers)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error marshaling container list: %s", err), http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonContainers)
+}
+
+func HandleGetContainerInfo(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req Request
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error decoding request body: %s", err), http.StatusBadRequest)
+		return
+	}
+
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.42"))
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error creating Docker client: %s", err), http.StatusInternalServerError)
+		return
+	}
+	defer cli.Close()
+
+	ctx := context.Background()
+	stats, err := cli.ContainerStats(ctx, req.ContainerId, false)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error getting stats for container %s: %s", req.ContainerId, err), http.StatusInternalServerError)
+		return
+	}
+	defer stats.Body.Close()
+
+	var statsJSON types.StatsJSON
+	err = json.NewDecoder(stats.Body).Decode(&statsJSON)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error decoding stats for container %s: %s", req.ContainerId, err), http.StatusInternalServerError)
+		return
+	}
+
+	jsonStats, err := json.Marshal(statsJSON)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error marshaling stats: %s", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonStats)
 }
 
 func HandleDeleteContainer(w http.ResponseWriter, r *http.Request) {

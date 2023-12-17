@@ -5,7 +5,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   overflow: hidden;
   border-radius: 0.5rem;
   background-color: #000c;
@@ -74,6 +74,10 @@
   animation: appear 0.7s 0.5s ease forwards;
 }
 
+.willClose {
+  animation: close 0.5s ease forwards;
+}
+
 @keyframes open {
   0% {
     opacity: 0;
@@ -95,6 +99,8 @@
   100% {
     opacity: 0;
     height: 0rem;
+    padding: 0rem;
+    margin: 0rem;
   }
 }
 

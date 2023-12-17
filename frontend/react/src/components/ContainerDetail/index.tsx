@@ -2,8 +2,10 @@ import { useState } from "react";
 import styles from "./styles.module.css";
 import { apiHandler } from "../../utils/apiHandler";
 import LoaderGif from "/assets/loader.gif";
+import ResourceUsage from "../ResourceUsage";
 import Terminal from "../Terminal";
 import Logs from "../Logs";
+import { toast } from "react-toastify";
 
 interface Props {
   handleClose: () => void;
@@ -34,70 +36,93 @@ const ContainerDetail: React.FC<Props> = ({
   );
   const [showTerminal, setShowTerminal] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
+  const [willClose, setWillClose] = useState(false);
 
   async function handleDelete() {
-    setMessage("Deleting container");
-    setIsLoading(true);
-    const response = await apiHandler(
-      "/deleteContainer",
-      "POST",
-      "application/json",
-      {
+    const response = await toast.promise(
+      apiHandler("/deleteContainer", "POST", "application/json", {
         container_id: containerId,
+      }),
+      {
+        pending: "Deleting container 🚀",
+        success: "Container deleted! 🎉",
+        error: "Error deleting container 😢",
       }
     );
-
     if (response.status === 200) {
-      alert("Container deleted");
-    } else {
-      alert("Error deleting container");
+      setIsContainerRunning(false);
     }
-    setIsContainerRunning(false);
-    window.location.reload();
   }
 
   async function handleStop() {
     setMessage("Stopping container");
     setIsLoading(true);
-    const response = await apiHandler(
-      "/stopContainer",
-      "POST",
-      "application/json",
-      {
+    const response = await toast.promise(
+      apiHandler("/stopContainer", "POST", "application/json", {
         container_id: containerId,
+      }),
+      {
+        pending: "Stopping container 🚀",
+        success: "Container stopped! 🎉",
+        error: "Error stopping container 😢",
       }
     );
-
     if (response.status === 200) {
-      alert("Container stopped");
-    } else {
-      alert("Error stopping container");
+      setIsContainerRunning(false);
     }
-    window.location.reload();
+    setIsLoading(false);
   }
 
   async function handleStart() {
     setMessage("Starting container");
     setIsLoading(true);
-    const response = await apiHandler(
-      "/runContainer",
-      "POST",
-      "application/json",
-      {
+    const response = await toast.promise(
+      apiHandler("/runContainer", "POST", "application/json", {
         container_id: containerId,
+      }),
+      {
+        pending: "Starting container 🚀",
+        success: "Container started! 🎉",
+        error: "Error starting container 😢",
       }
     );
-
     if (response.status === 200) {
-      alert("Container started");
-    } else {
-      alert("Error starting container");
+      setIsContainerRunning(true);
     }
-    window.location.reload();
+    setIsLoading(false);
+  }
+
+  function handleCloseAnim(component: string) {
+    const currentState = component === "terminal" ? showTerminal : showLogs;
+    if (currentState) {
+      setWillClose(true);
+      setTimeout(() => {
+        if (component === "terminal") {
+          setShowTerminal(!showTerminal);
+        } else {
+          setShowLogs(!showLogs);
+        }
+        setWillClose(false);
+      }, 750);
+    } else {
+      if (component === "terminal") {
+        setShowTerminal(!showTerminal);
+      } else {
+        setShowLogs(!showLogs);
+      }
+    }
   }
 
   return (
-    <div className={styles.container}>
+    <div
+      className={styles.container}
+      style={{
+        backgroundColor: isContainerRunning ? "#646cff" : "#646cff7f",
+        border: isContainerRunning
+          ? "0.25rem solid transparent"
+          : "0.25rem solid #646cff",
+      }}
+    >
       {isLoading ? (
         <div className={styles.loaderContainer}>
           <h2 className={styles.loadingText}>{message}</h2>
@@ -115,6 +140,9 @@ const ContainerDetail: React.FC<Props> = ({
             className={styles.infoContainer}
             style={{ animationDelay: 1 * amount + "ms" }}
           >
+            <div style={{ minWidth: "100%" }}>
+              <ResourceUsage containerId={containerId} />
+            </div>
             <div className={styles.infoField}>
               <p className={styles.infoTitle}>ID:</p>
               <p className={styles.infoText}>{containerId}</p>
@@ -157,8 +185,10 @@ const ContainerDetail: React.FC<Props> = ({
               </p>
             </div>
           </div>
-          {showTerminal && <Terminal containerId={containerId} />}
-          {showLogs && <Logs containerId={containerId} />}
+          {showTerminal && (
+            <Terminal containerId={containerId} willClose={willClose} />
+          )}
+          {showLogs && <Logs containerId={containerId} willClose={willClose} />}
 
           <div className={styles.buttons}>
             {isContainerRunning ? (
@@ -180,7 +210,7 @@ const ContainerDetail: React.FC<Props> = ({
                   Stop
                 </button>
                 <button
-                  onClick={() => setShowTerminal(!showTerminal)}
+                  onClick={() => handleCloseAnim("terminal")}
                   className={styles.button + " " + styles.deleteBtn}
                 >
                   Terminal
@@ -192,7 +222,7 @@ const ContainerDetail: React.FC<Props> = ({
               </button>
             )}
             <button
-              onClick={() => setShowLogs(!showLogs)}
+              onClick={() => handleCloseAnim("logs")}
               className={styles.button}
             >
               {showLogs ? "Hide logs" : "Show logs"}

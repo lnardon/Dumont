@@ -15,6 +15,7 @@ func main() {
 	http.HandleFunc("/createContainer", verifyJWT(StartContainer))
 	http.HandleFunc("/stopContainer", verifyJWT(StopContainer))
 	http.HandleFunc("/runContainer", verifyJWT(RunContainerById))
+	http.HandleFunc("/getContainerInfo", verifyJWT(HandleGetContainerInfo))
 	http.HandleFunc("/ws", WebSocketHandler)
 	http.HandleFunc("/logs", LogsHandler)
 	http.HandleFunc("/login", Login)
