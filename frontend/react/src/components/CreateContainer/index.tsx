@@ -2,6 +2,7 @@ import { useState } from "react";
 import styles from "./styles.module.css";
 import LoaderGif from "/assets/loader.gif";
 import { apiHandler } from "../../utils/apiHandler";
+import { toast } from "react-toastify";
 
 type Props = {
   handleClose: () => void;
@@ -21,7 +22,7 @@ function CreateContainer({ handleClose }: Props) {
 
   async function sendRepoLink() {
     if (!repoLink || !ports) {
-      alert("No valid repo link and port provided.");
+      toast.warning("No valid repo link and port provided.");
       return;
     }
 
@@ -32,37 +33,42 @@ function CreateContainer({ handleClose }: Props) {
       restart_policy: restartPolicy,
     });
 
-    if (response.status === 200 || response.status === 201) {
-      alert("Project cloned and started");
+    if (response.status === 201 || response.status === 200) {
+      toast.success("Container created! 🎉");
     } else {
-      alert("Error cloning and stating project");
+      toast.error("Error creating container 😢");
     }
-    window.location.reload();
   }
 
   async function create() {
     setIsLoading(true);
     if (!containerName || !ports || !imageName) {
-      alert("No valid container name, port or image provided.");
+      toast.warning("No valid container name, port or image provided.");
       setIsLoading(false);
       return;
     }
 
-    const response = await apiHandler("/createContainer", "POST", "", {
-      container_name: containerName.replace(" ", ""),
-      ports: ports,
-      image: imageName,
-      volumes: volumes.trim().split(/\s*;\s*/),
-      restart_policy: restartPolicy,
-      variables: variables.trim().split(/\s*;\s*/),
-    });
+    const response = await toast.promise(
+      apiHandler("/createContainer", "POST", "", {
+        container_name: containerName.replace(" ", ""),
+        ports: ports,
+        image: imageName,
+        volumes: volumes.trim().split(/\s*;\s*/),
+        restart_policy: restartPolicy,
+        variables: variables.trim().split(/\s*;\s*/),
+      }),
+      {
+        pending: "Deleting container 🚀",
+        success: "Container deleted! 🎉",
+        error: "Error deleting container 😢",
+      }
+    );
 
     if (response.status === 201 || response.status === 200) {
-      alert("Container created");
+      toast.success("Container created! 🎉");
     } else {
-      alert("Error creating container");
+      toast.error("Error creating container 😢");
     }
-    window.location.reload();
   }
 
   return (
