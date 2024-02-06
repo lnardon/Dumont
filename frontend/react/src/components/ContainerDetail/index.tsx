@@ -154,13 +154,22 @@ const ContainerDetail: React.FC<Props> = ({
             >
               <p className={styles.infoTitle}>Ports:</p>
               {containerPorts.map((port, index) => {
-                return (
-                  <p key={index} className={styles.infoText}>
+                return port.PublicPort && port.IP !== "::" ? (
+                  <p
+                    key={index}
+                    className={styles.port}
+                    onClick={() => {
+                      window.open(
+                        `${window.location.protocol}//${window.location.hostname}:${port.PublicPort}`,
+                        "_blank"
+                      );
+                    }}
+                  >
                     {port.IP
                       ? port.IP + ":" + port.PublicPort
                       : port.PrivatePort}
                   </p>
-                );
+                ) : null;
               })}
             </div>
             <div
@@ -202,19 +211,6 @@ const ContainerDetail: React.FC<Props> = ({
           <div className={styles.buttons}>
             {isContainerRunning ? (
               <>
-                {/* <button
-                  className={styles.button}
-                  onClick={() => {
-                    window.open(
-                      `${window.location.protocol}//${
-                        window.location.hostname
-                      }:${containerPorts.split(":")[0]}`,
-                      "_blank"
-                    );
-                  }}
-                >
-                  Open
-                </button> */}
                 <button onClick={handleStop} className={styles.button}>
                   Stop
                 </button>

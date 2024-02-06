@@ -87,6 +87,23 @@
   word-break: break-all;
 }
 
+.port {
+  margin: 0rem 0.25rem;
+  word-break: break-all;
+  background-color: rgba(100, 108, 255, 0.16);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 0.5rem;
+  border-left: 2px solid rgba(100, 108, 255, 0.64);
+}
+
+.port:hover {
+  transform: scale(1.1);
+  background-color: rgba(100, 108, 255, 0.64);
+}
+
 .buttons {
   display: flex;
   align-items: center;
