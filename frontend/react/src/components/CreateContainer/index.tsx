@@ -58,13 +58,14 @@ function CreateContainer({ handleClose }: Props) {
         variables: variables.trim().split(/\s*;\s*/),
       }),
       {
-        pending: "Deleting container 🚀",
-        success: "Container deleted! 🎉",
-        error: "Error deleting container 😢",
+        success: "Container created! 🎉",
+        error: "Error creating container 😢",
       }
     );
 
     if (response.status === 201 || response.status === 200) {
+      handleClose();
+      setIsLoading(false);
       toast.success("Container created! 🎉");
     } else {
       toast.error("Error creating container 😢");

@@ -32,12 +32,11 @@ function Terminal({
   useEffect(() => {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const host = window.location.host;
-    const wsUrl = `${protocol}//${host}/ws`;
+    const wsUrl = `${protocol}//${host}/terminal`;
 
     ws.current = new WebSocket(wsUrl);
     ws.current.binaryType = "arraybuffer";
     ws.current.onopen = () => {
-      console.log("Connected to WebSocket");
       setIsSocketConnected(true);
       ws.current?.send("container_id:" + containerId);
     };

@@ -23,7 +23,6 @@ function Logs({
       ws.current = new WebSocket(wsUrl);
       ws.current.binaryType = "arraybuffer";
       ws.current.onopen = () => {
-        console.log("Connected to WebSocket");
         setIsSocketConnected(true);
         ws.current?.send("container_id:" + containerId);
       };

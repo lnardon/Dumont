@@ -9,6 +9,7 @@ import styles from "./styles.module.css";
 import { apiHandler } from "../../utils/apiHandler";
 
 type ContainerCardInfo = {
+  Id: string;
   Names: string;
   Status: string;
 };
@@ -18,7 +19,7 @@ const Dashboard: React.FC = () => {
   const [containerInfo, setContainerInfo] = useState<any>({
     Names: "",
     Status: "",
-    Ports: "",
+    Ports: [],
     Id: "",
     Image: "",
     Networks: "",
@@ -35,7 +36,6 @@ const Dashboard: React.FC = () => {
       case "containers":
         return (
           <div className={styles.containerList}>
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {containerList.map((container: any, index) => {
               return (
                 <ContainerCard
@@ -59,17 +59,10 @@ const Dashboard: React.FC = () => {
             containerName={containerInfo.Names[0].replace("/", "")}
             containerImage={containerInfo.Image}
             containerStatus={containerInfo.Status}
-            containerPorts={
-              containerInfo?.Ports[0]?.PublicPort &&
-              containerInfo?.Ports[0]?.PrivatePort
-                ? containerInfo?.Ports[0]?.PublicPort +
-                  ":" +
-                  containerInfo?.Ports[0]?.PrivatePort
-                : ""
-            }
+            containerPorts={containerInfo?.Ports}
             containerNetwork={Object.keys(
-              containerInfo?.NetworkSettings?.Networks
-            )[0].toString()}
+              containerInfo.NetworkSettings.Networks
+            ).join(", ")}
             containerId={containerInfo.Id}
             createdAt={containerInfo.Created}
           />
@@ -98,6 +91,21 @@ const Dashboard: React.FC = () => {
       clearInterval(interval);
     };
   }, []);
+
+  useEffect(() => {
+    if (currentView === "containerDetail") {
+      const updatedContainer = containerList.find(
+        (c) => c.Id === containerInfo.Id
+      );
+      if (
+        updatedContainer &&
+        updatedContainer.Status !== containerInfo.Status
+      ) {
+        setContainerInfo(updatedContainer);
+      }
+    }
+  }, [containerList, currentView]);
+
   return (
     <div className={styles.dashboard}>
       <Header handleCreate={handleOpen} />

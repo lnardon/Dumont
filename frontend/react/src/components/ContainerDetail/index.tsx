@@ -12,7 +12,7 @@ interface Props {
   containerName: string;
   containerImage: string;
   containerStatus: string;
-  containerPorts: string;
+  containerPorts: any[];
   containerId: string;
   containerNetwork: string;
   createdAt: number;
@@ -51,6 +51,7 @@ const ContainerDetail: React.FC<Props> = ({
     );
     if (response.status === 200) {
       setIsContainerRunning(false);
+      handleClose();
     }
   }
 
@@ -152,7 +153,15 @@ const ContainerDetail: React.FC<Props> = ({
               style={{ animationDelay: 2 * amount + "ms" }}
             >
               <p className={styles.infoTitle}>Ports:</p>
-              <p className={styles.infoText}>{containerPorts}</p>
+              {containerPorts.map((port, index) => {
+                return (
+                  <p key={index} className={styles.infoText}>
+                    {port.IP
+                      ? port.IP + ":" + port.PublicPort
+                      : port.PrivatePort}
+                  </p>
+                );
+              })}
             </div>
             <div
               className={styles.infoField}
@@ -193,7 +202,7 @@ const ContainerDetail: React.FC<Props> = ({
           <div className={styles.buttons}>
             {isContainerRunning ? (
               <>
-                <button
+                {/* <button
                   className={styles.button}
                   onClick={() => {
                     window.open(
@@ -205,7 +214,7 @@ const ContainerDetail: React.FC<Props> = ({
                   }}
                 >
                   Open
-                </button>
+                </button> */}
                 <button onClick={handleStop} className={styles.button}>
                   Stop
                 </button>
