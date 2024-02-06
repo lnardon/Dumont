@@ -20,7 +20,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type Request struct {
+type BasicRequest struct {
 	RepoURL string `json:"repo_url"`
 	Port string `json:"container_port"`
 	ContainerId string `json:"container_id"`
@@ -31,9 +31,9 @@ type CreateRequest struct {
 	ContainerName   string `json:"container_name"`
 	Ports           string `json:"ports"`
 	Image           string `json:"image"`
-	Volumes          []string `json:"volumes"`
-	RestartPolicy  string `json:"restart_policy"`
-	Variables 	 []string `json:"variables"`
+	Variables     []string `json:"variables,omitempty"`
+	Volumes       []string `json:"volumes,omitempty"`
+	RestartPolicy string   `json:"restartPolicy,omitempty"`
 }
 
 func StartContainer(w http.ResponseWriter, r *http.Request) {
@@ -52,18 +52,46 @@ func StartContainer(w http.ResponseWriter, r *http.Request) {
 	defer cli.Close()
 
 	ctx := context.Background()
+	portBindings := nat.PortMap{}
+	if req.Ports != "" {
+		hostPort := strings.Split(req.Ports, ":")[0]
+		containerPort := strings.Split(req.Ports, ":")[1] + "/tcp"
+		portBindings[nat.Port(containerPort)] = []nat.PortBinding{{HostPort: hostPort}}
+	}
+
+	restartPolicy := container.RestartPolicy{}
+	if req.RestartPolicy != "" {
+		restartPolicy.Name = req.RestartPolicy
+	}
+
+	validEnv := make([]string, 0)
+    for _, env := range req.Variables {
+        if strings.Contains(env, "=") {
+            validEnv = append(validEnv, env)
+        }
+    }
+
+	validVolumes := make([]string, 0)
+	for _, volume := range req.Volumes {
+		if volume != "" {
+			validVolumes = append(validVolumes, volume)
+		}
+	}
+
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image: req.Image,
-		Env:   req.Variables,
+		Env:  validEnv,
 	}, &container.HostConfig{
-		PortBindings: map[nat.Port][]nat.PortBinding{
-			nat.Port(strings.Split(req.Ports, ":")[1] + "/tcp"): {{HostPort: strings.Split(req.Ports, ":")[0]}},
-		},
-		Binds: req.Volumes,	
-		RestartPolicy: container.RestartPolicy{
-			Name: req.RestartPolicy,
-		},
+		PortBindings: portBindings,
+		Binds:        validVolumes,
+		RestartPolicy: restartPolicy,
 	}, nil, nil, req.ContainerName)
+
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error creating container: %s", err), http.StatusInternalServerError)
+		return
+	}
+
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error creating container: %s", err), http.StatusInternalServerError)
 		return
@@ -78,7 +106,7 @@ func StartContainer(w http.ResponseWriter, r *http.Request) {
 }
 
 func StopContainer(w http.ResponseWriter, r *http.Request) {
-	var req Request
+	var req BasicRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
 		return
@@ -106,7 +134,7 @@ func StopContainer(w http.ResponseWriter, r *http.Request) {
 }
 
 func RunContainerById(w http.ResponseWriter, r *http.Request) {
-	var req Request
+	var req BasicRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
 		return
@@ -153,7 +181,7 @@ func HandleClone(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req Request
+	var req BasicRequest
 	err = json.Unmarshal(body, &req)
 	if err != nil {
 		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
@@ -229,7 +257,7 @@ func HandleGetContainerInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req Request
+	var req BasicRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error decoding request body: %s", err), http.StatusBadRequest)
@@ -277,7 +305,7 @@ func HandleDeleteContainer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req Request
+	var req BasicRequest
 	err = json.Unmarshal(body, &req)
 	if err != nil {
 		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
@@ -309,7 +337,7 @@ var upgrader = websocket.Upgrader{
     WriteBufferSize: 1024,
 }
 
-func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
+func TerminalHandler(w http.ResponseWriter, r *http.Request) {
     conn, err := upgrader.Upgrade(w, r, nil)
     if err != nil {
         log.Printf("WebSocket upgrade error: %v", err)

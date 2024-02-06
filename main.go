@@ -8,7 +8,7 @@ import (
 func main() {
     http.Handle("/", http.FileServer(http.Dir("./frontend/react/dist")))
 
-	http.HandleFunc("/cloneRepo", HandleClone)
+	http.HandleFunc("/cloneRepo", verifyJWT(HandleClone))
 	http.HandleFunc("/getContainerList", verifyJWT(HandleContainerList))
 	http.HandleFunc("/deleteContainer", verifyJWT(HandleDeleteContainer))
 	http.HandleFunc("/getHardwareInfo", verifyJWT(HandleHardwareInfo))
@@ -16,7 +16,7 @@ func main() {
 	http.HandleFunc("/stopContainer", verifyJWT(StopContainer))
 	http.HandleFunc("/runContainer", verifyJWT(RunContainerById))
 	http.HandleFunc("/getContainerInfo", verifyJWT(HandleGetContainerInfo))
-	http.HandleFunc("/ws", WebSocketHandler)
+	http.HandleFunc("/terminal", TerminalHandler)
 	http.HandleFunc("/logs", LogsHandler)
 	http.HandleFunc("/login", Login)
 
