@@ -44,7 +44,6 @@ const ContainerDetail: React.FC<Props> = ({
         container_id: containerId,
       }),
       {
-        pending: "Deleting container 🚀",
         success: "Container deleted! 🎉",
         error: "Error deleting container 😢",
       }
@@ -63,7 +62,6 @@ const ContainerDetail: React.FC<Props> = ({
         container_id: containerId,
       }),
       {
-        pending: "Stopping container 🚀",
         success: "Container stopped! 🎉",
         error: "Error stopping container 😢",
       }
@@ -82,7 +80,6 @@ const ContainerDetail: React.FC<Props> = ({
         container_id: containerId,
       }),
       {
-        pending: "Starting container 🚀",
         success: "Container started! 🎉",
         error: "Error starting container 😢",
       }
