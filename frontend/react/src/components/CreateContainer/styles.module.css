@@ -148,6 +148,7 @@
   border-radius: 0.5rem;
   border: none;
   outline: var(--secondary-color);
+  cursor: pointer;
 }
 
 .buttons {

@@ -93,7 +93,7 @@ function CreateContainer({ handleClose }: Props) {
                 className={styles.field}
                 style={{ animationDelay: 0 * delay + "ms" }}
               >
-                <label className={styles.name}>Image name:</label>
+                <label className={styles.name}>Image name: *</label>
                 <input
                   type="text"
                   className={styles.input}
@@ -107,7 +107,7 @@ function CreateContainer({ handleClose }: Props) {
                 className={styles.field}
                 style={{ animationDelay: 1 * delay + "ms" }}
               >
-                <label className={styles.name}>Repository url:</label>
+                <label className={styles.name}>Repository url: *</label>
                 <input
                   type="text"
                   className={styles.input}
@@ -121,7 +121,7 @@ function CreateContainer({ handleClose }: Props) {
               className={styles.field}
               style={{ animationDelay: 2 * delay + "ms" }}
             >
-              <label className={styles.name}>Port:</label>
+              <label className={styles.name}>Port: *</label>
               <input
                 type="text"
                 className={styles.input}
@@ -134,7 +134,7 @@ function CreateContainer({ handleClose }: Props) {
               className={styles.field}
               style={{ animationDelay: 3 * delay + "ms" }}
             >
-              <label className={styles.name}>Container name:</label>
+              <label className={styles.name}>Container name: *</label>
               <input
                 type="text"
                 className={styles.input}
@@ -190,7 +190,7 @@ function CreateContainer({ handleClose }: Props) {
               className={styles.input}
               value={variables}
               onChange={(e) => setVariable(e.target.value)}
-              placeholder="DATABASE_URL=postgres://user:pass@localhost:5432/db ; PORT=3000"
+              placeholder="DATABASE_URL=postgres://user:pass@localhost:5432/db ; PORT=3000 (Optional)"
             />
           </div>
           <div className={styles.buttons}>
