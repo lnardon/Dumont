@@ -37,6 +37,7 @@ const ContainerDetail: React.FC<Props> = ({
   const [showTerminal, setShowTerminal] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
   const [willClose, setWillClose] = useState(false);
+  const [willTerminalClose, setWillTerminalClose] = useState(false);
 
   async function handleDelete() {
     const response = await toast.promise(
@@ -93,10 +94,15 @@ const ContainerDetail: React.FC<Props> = ({
   function handleCloseAnim(component: string) {
     const currentState = component === "terminal" ? showTerminal : showLogs;
     if (currentState) {
-      setWillClose(true);
+      if (component === "terminal") {
+        setWillTerminalClose(true);
+      } else {
+        setWillClose(true);
+      }
       setTimeout(() => {
         if (component === "terminal") {
           setShowTerminal(!showTerminal);
+          setWillTerminalClose(false);
         } else {
           setShowLogs(!showLogs);
         }
@@ -201,7 +207,7 @@ const ContainerDetail: React.FC<Props> = ({
             </div>
           </div>
           {showTerminal && (
-            <Terminal containerId={containerId} willClose={willClose} />
+            <Terminal containerId={containerId} willClose={willTerminalClose} />
           )}
           {showLogs && <Logs containerId={containerId} willClose={willClose} />}
 
@@ -215,7 +221,7 @@ const ContainerDetail: React.FC<Props> = ({
                   onClick={() => handleCloseAnim("terminal")}
                   className={styles.button + " " + styles.deleteBtn}
                 >
-                  Terminal
+                  {showTerminal ? "Hide terminal" : "Show terminal"}
                 </button>
               </>
             ) : (
