@@ -25,7 +25,7 @@ const ResourceUsage: React.FC<{ containerId: string }> = ({ containerId }) => {
     const cpuStats = containerStats.cpu_stats || {};
     const preCpuStats = containerStats.precpu_stats || {};
     if (!cpuStats.cpu_usage || !preCpuStats.cpu_usage) {
-      return "0";
+      return 0;
     }
 
     const cpuDelta =
@@ -34,11 +34,11 @@ const ResourceUsage: React.FC<{ containerId: string }> = ({ containerId }) => {
       cpuStats.system_cpu_usage - preCpuStats.system_cpu_usage;
     const numberOfCPU = cpuStats.online_cpus;
     if (cpuDelta <= 0 || systemDelta <= 0 || numberOfCPU <= 0) {
-      return "0";
+      return 0;
     }
 
     const cpuPercentage = (cpuDelta / systemDelta) * numberOfCPU * 100.0;
-    return cpuPercentage.toFixed(2);
+    return parseFloat(cpuPercentage.toFixed(2));
   }
 
   useEffect(() => {

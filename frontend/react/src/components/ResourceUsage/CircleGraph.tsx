@@ -1,14 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export default function CircleGraph({
   percentage,
   label,
 }: {
-  percentage: any;
+  percentage: number;
   label: string;
 }) {
   const radius = 28;
   const circumference = 2 * Math.PI * radius;
-  const strokePct = ((100 - parseFloat(percentage)) * circumference) / 100;
+  const strokePct = ((100 - percentage) * circumference) / 100;
   return (
     <svg width={64} height={64}>
       <circle
