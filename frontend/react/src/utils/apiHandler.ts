@@ -1,16 +1,16 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const apiHandler = async (
   url: string,
   method: string,
   contentType: string,
-  body: any
+  body: { [key: string]: string | string[] }
 ) => {
-  const options: any = {
+  const options = {
     method: method,
     headers: {
       Authorization: sessionStorage.getItem("token") || "",
       "Content-Type": contentType,
     },
+    body: "",
   };
 
   if (method === "POST") {

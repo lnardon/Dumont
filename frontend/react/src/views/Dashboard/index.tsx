@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import ContainerDetail from "../../components/ContainerDetail";
 import ContainerCard from "../../components/ContainerCard";
@@ -8,15 +7,21 @@ import CreateContainer from "../../components/CreateContainer";
 import styles from "./styles.module.css";
 import { apiHandler } from "../../utils/apiHandler";
 
-type ContainerCardInfo = {
-  Id: string;
+type ContainerInfo = {
   Names: string;
   Status: string;
+  Ports: any[];
+  Id: string;
+  Image: string;
+  Networks: string;
+  Size: string;
+  NetworkSettings?: any;
+  Created?: number;
 };
 
 const Dashboard: React.FC = () => {
   const [currentView, setCurrentView] = useState("containers");
-  const [containerInfo, setContainerInfo] = useState<any>({
+  const [containerInfo, setContainerInfo] = useState<ContainerInfo>({
     Names: "",
     Status: "",
     Ports: [],
@@ -25,7 +30,7 @@ const Dashboard: React.FC = () => {
     Networks: "",
     Size: "",
   });
-  const [containerList, setContainerList] = useState<ContainerCardInfo[]>([]);
+  const [containerList, setContainerList] = useState<ContainerInfo[]>([]);
 
   function handleOpen() {
     setCurrentView("createContainer");
@@ -36,10 +41,10 @@ const Dashboard: React.FC = () => {
       case "containers":
         return (
           <div className={styles.containerList}>
-            {containerList.map((container: any, index) => {
+            {containerList.map((container, index) => {
               return (
                 <ContainerCard
-                  key={container.ID}
+                  key={container.Id}
                   name={container.Names[0].replace("/", "")}
                   handleOpen={() => {
                     setContainerInfo(container);
@@ -64,7 +69,7 @@ const Dashboard: React.FC = () => {
               containerInfo.NetworkSettings.Networks
             ).join(", ")}
             containerId={containerInfo.Id}
-            createdAt={containerInfo.Created}
+            createdAt={containerInfo.Created || 0}
           />
         );
 
@@ -78,7 +83,7 @@ const Dashboard: React.FC = () => {
   async function getInfo() {
     const response = await apiHandler("/getContainerList", "GET", "", {});
     const data = await response.json();
-    setContainerList(data);
+    setContainerList(data || []);
   }
 
   useEffect(() => {

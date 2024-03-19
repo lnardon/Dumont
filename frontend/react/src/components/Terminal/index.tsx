@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from "react";
 import styles from "./styles.module.css";
 
@@ -16,7 +15,7 @@ function Terminal({
   const listRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  function handleInput(e: any) {
+  function handleInput(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
       if (input === "clear") {
         setData("");
