@@ -43,7 +43,8 @@ function Logs({
   useEffect(() => {
     listRef.current?.lastElementChild?.scrollIntoView({
       behavior: "smooth",
-      block: "end",
+      block: "center",
+      inline: "end",
     });
   }, [data]);
 
