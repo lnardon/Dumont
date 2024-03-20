@@ -117,6 +117,15 @@ const Dashboard: React.FC = () => {
       <div className={styles.content}>
         <div className={styles.sidebar}>
           <HardwareInfo />
+          <button
+            onClick={() => {
+              sessionStorage.removeItem("token");
+              window.location.href = "/";
+            }}
+            className={styles.logout}
+          >
+            Logout
+          </button>
         </div>
         <div className={styles.container}>{getCurrentView()}</div>
       </div>
