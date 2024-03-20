@@ -4,13 +4,19 @@ export const apiHandler = async (
   contentType: string,
   body: { [key: string]: string | string[] }
 ) => {
-  const options = {
+  const options: {
+    method: string;
+    headers: {
+      Authorization: string;
+      "Content-Type": string;
+    };
+    body?: string;
+  } = {
     method: method,
     headers: {
       Authorization: sessionStorage.getItem("token") || "",
       "Content-Type": contentType,
     },
-    body: "",
   };
 
   if (method === "POST") {

@@ -50,6 +50,8 @@
 .content {
   width: 100%;
   margin-bottom: 1rem;
+  word-break: break-all;
+  white-space: pre-wrap;
 }
 
 .willClose {
