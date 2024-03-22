@@ -1,4 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import AnimatedText from "animated-text-letters";
+import "animated-text-letters/dist/index.css";
 import styles from "./styles.module.css";
 
 interface HeaderProps {
@@ -6,6 +8,8 @@ interface HeaderProps {
 }
 
 export default function Header({ handleCreate }: HeaderProps) {
+  const [time, setTime] = useState<string>("");
+
   function getCurrentTime() {
     const today = new Date();
     const time =
@@ -23,15 +27,22 @@ export default function Header({ handleCreate }: HeaderProps) {
   useEffect(() => {
     const interval = setInterval(() => {
       const time = getCurrentTime();
-      document.querySelector("span")!.innerText = time;
+      setTime(time);
     }, 1000);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className={styles.container}>
-      <img className={styles.logo} src="/assets/dumont_logo.png" alt="" />
-      <span className={styles.time}>{getCurrentTime()}</span>
+      <img className={styles.logo} src="/assets/dumont_logo.png" alt="Logo" />
+      <span className={styles.time}>
+        <AnimatedText
+          text={time}
+          animateOnlyDifferentLetters={true}
+          animation="fade-in"
+          delay={24}
+        />
+      </span>
       <button className={styles.button} onClick={handleCreate}>
         +
       </button>
