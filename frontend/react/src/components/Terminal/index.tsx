@@ -10,6 +10,7 @@ function Terminal({
 }) {
   const [isSocketConnected, setIsSocketConnected] = useState(false);
   const [data, setData] = useState("");
+  const [prompts, setPrompts] = useState([""]);
   const [input, setInput] = useState("");
   const ws = useRef<WebSocket | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
@@ -22,6 +23,7 @@ function Terminal({
         setInput("");
         return;
       }
+      setPrompts((oldPrompts) => [...oldPrompts, input]);
       ws.current?.send(input);
       setInput("");
       return;
@@ -85,9 +87,16 @@ function Terminal({
           </span>
         )}
         <div className={styles.std} ref={listRef}>
-          {data.split("|new_line|").map((line) => (
-            <pre className={styles.content}>{line}</pre>
-          ))}
+          {data.split("|new_line|").map((line, idx) => {
+            if (idx > 0) {
+              return (
+                <div>
+                  <p className={styles.terminalHeader}>{`> ${prompts[idx]}`}</p>
+                  <p className={styles.content}>{line}</p>
+                </div>
+              );
+            }
+          })}
         </div>
         {isSocketConnected && (
           <div className={styles.inputContainer}>

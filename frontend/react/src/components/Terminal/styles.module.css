@@ -29,6 +29,22 @@
   animation: fadeIn 0.7s 0.5s ease forwards;
 }
 
+.terminalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0rem 0.5rem 0rem;
+  background-color: #3b82f6;
+  border-radius: 0.25rem;
+  width: fit-content;
+  padding: 0.25rem 0.5rem;
+  color: black;
+  font-family: monospace;
+  padding-right: 1rem;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
 .std {
   width: 100%;
   height: calc(100% - 6.5rem);
@@ -43,13 +59,20 @@
   scrollbar-width: none;
   padding: 0rem 0.5rem;
 }
+
 .std::-webkit-scrollbar {
   display: none;
 }
 
 .content {
   width: 100%;
-  margin-bottom: 1rem;
+  margin-bottom: 3rem;
+  word-break: break-word;
+  white-space: pre-wrap;
+  padding: 0.25rem 0rem;
+  padding-left: 1rem;
+  border-left: 0.125rem solid #3b82f6;
+  border-radius: 0rem 0rem 0rem 0.5rem;
 }
 
 .inputContainer {

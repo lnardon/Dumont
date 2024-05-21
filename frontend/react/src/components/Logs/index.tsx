@@ -73,7 +73,7 @@ function Logs({
         )}
         <div className={styles.std} ref={listRef}>
           {data.split("|new_line|").map((line) => (
-            <pre className={styles.content}>{line}</pre>
+            <p className={styles.content}>{line}</p>
           ))}
         </div>
       </div>

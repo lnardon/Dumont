@@ -18,9 +18,7 @@ export default function Header({ handleCreate }: HeaderProps) {
       ":" +
       (today.getMinutes() < 10 ? "0" : "") +
       today.getMinutes() +
-      ":" +
-      (today.getSeconds() < 10 ? "0" : "") +
-      today.getSeconds();
+      ":00";
     return time;
   }
 
@@ -40,7 +38,7 @@ export default function Header({ handleCreate }: HeaderProps) {
           text={time}
           animateOnlyDifferentLetters={true}
           animation="fade-in"
-          delay={24}
+          delay={48}
         />
       </span>
       <button className={styles.button} onClick={handleCreate}>
