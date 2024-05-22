@@ -17,8 +17,7 @@ export default function Header({ handleCreate }: HeaderProps) {
       today.getHours() +
       ":" +
       (today.getMinutes() < 10 ? "0" : "") +
-      today.getMinutes() +
-      ":00";
+      today.getMinutes();
     return time;
   }
 

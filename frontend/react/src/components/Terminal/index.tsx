@@ -21,6 +21,7 @@ function Terminal({
       if (input === "clear") {
         setData("");
         setInput("");
+        setPrompts([""]);
         return;
       }
       setPrompts((oldPrompts) => [...oldPrompts, input]);
