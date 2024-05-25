@@ -57,11 +57,16 @@ function Terminal({
   }, [containerId]);
 
   useEffect(() => {
-    listRef.current?.lastElementChild?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-      inline: "end",
-    });
+    const scrollToBottom = () => {
+      if (listRef.current) {
+        listRef.current.scrollTo({
+          top: listRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+    };
+
+    scrollToBottom();
   }, [data]);
 
   useEffect(() => {
