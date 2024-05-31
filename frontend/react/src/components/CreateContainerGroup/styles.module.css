@@ -1,0 +1,97 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background: rgb(15, 113, 226);
+  width: 100%;
+  height: 44rem;
+  padding: 1rem;
+  animation: popupContainer 1.3s cubic-bezier(0.175, 0.685, 0.36, 1.125);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.title {
+  width: 100%;
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-align: start;
+  background-color: rgba(0, 0, 0, 0.32);
+  padding: 0.5rem 0.75rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  border-radius: 0.25rem;
+}
+
+.closeBtn {
+  width: 3.5rem;
+  height: 100%;
+  background-color: rgba(255, 0, 0, 0.76);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 900;
+  font-size: 1.25rem;
+  border-radius: 0.25rem;
+  border: none;
+}
+
+.textarea {
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  background: #1a1a1a;
+  color: white;
+  font-size: 1rem;
+  resize: vertical;
+  font-family: "Courier New", Courier, monospace;
+  box-shadow: 0rem 0rem 1rem 0.25rem rgba(23, 23, 23, 0.15);
+}
+
+.textarea > textarea:focus {
+  outline: none;
+}
+
+.buttonsContainer {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  background: rgb(19, 255, 69);
+  color: black;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0rem 0rem 1rem 0.125rem rgba(23, 23, 23, 0.2);
+}
+
+@keyframes popupContainer {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0rem);
+  }
+}

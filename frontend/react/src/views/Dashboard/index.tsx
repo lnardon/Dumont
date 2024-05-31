@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
+import { apiHandler } from "../../utils/apiHandler";
+import styles from "./styles.module.css";
 import ContainerDetail from "../../components/ContainerDetail";
 import ContainerCard from "../../components/ContainerCard";
 import Header from "../../components/Header";
 import HardwareInfo from "../../components/HardwareInfo";
 import CreateContainer from "../../components/CreateContainer";
-import styles from "./styles.module.css";
-import { apiHandler } from "../../utils/apiHandler";
+import CreateContainerGroup from "../../components/CreateContainerGroup";
 
 type ContainerInfo = {
   Names: string;
@@ -33,7 +34,7 @@ const Dashboard: React.FC = () => {
   const [containerList, setContainerList] = useState<ContainerInfo[]>([]);
 
   function handleOpen() {
-    setCurrentView("createContainer");
+    setCurrentView("createContainerGroup");
   }
 
   function getCurrentView() {
@@ -76,6 +77,13 @@ const Dashboard: React.FC = () => {
       case "createContainer":
         return (
           <CreateContainer handleClose={() => setCurrentView("containers")} />
+        );
+
+      case "createContainerGroup":
+        return (
+          <CreateContainerGroup
+            handleClose={() => setCurrentView("containers")}
+          />
         );
     }
   }
