@@ -1,6 +1,6 @@
 FRONTEND_DIR=./frontend/react
 GO_DIR=.
-SERVER_FILES=main.go container.go hardware.go auth.go
+SERVER_FILES=main.go container.go hardware.go auth.go group.go
 PORT=3322
 
 build-frontend:
