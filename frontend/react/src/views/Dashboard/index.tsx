@@ -33,10 +33,6 @@ const Dashboard: React.FC = () => {
   });
   const [containerList, setContainerList] = useState<ContainerInfo[]>([]);
 
-  function handleOpen() {
-    setCurrentView("createContainerGroup");
-  }
-
   function getCurrentView() {
     switch (currentView) {
       case "containers":
@@ -121,7 +117,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className={styles.dashboard}>
-      <Header handleCreate={handleOpen} />
+      <Header handleCreate={setCurrentView} />
       <div className={styles.content}>
         <div className={styles.sidebar}>
           <HardwareInfo />
