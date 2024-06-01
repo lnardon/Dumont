@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { apiHandler } from "../../utils/apiHandler";
+import CloseBtn from "../CloseBtn";
 import styles from "./styles.module.css";
 import { toast } from "react-toastify";
 import Editor from "react-simple-code-editor";
@@ -21,14 +22,12 @@ services:
       - "3223:80"
     restart: always`);
   const [groupName, setGroupName] = useState("New Container Group");
+  const [isLoading, setIsLoading] = useState(false);
 
   function handleSaveAndDeploy() {
-    let n = prompt("Enter the group name:");
-    if (n === null || n === "") {
-      toast.error("Group name cannot be empty");
-      return;
-    }
+    const n = new Date().getTime().toString();
     setGroupName(n);
+    setIsLoading(true);
     apiHandler("/saveAndDeployGroup", "POST", "application/json", {
       name: n,
       text: groupText,
@@ -39,29 +38,36 @@ services:
       } else {
         toast.error("Error saving and deploying group 😢");
       }
+      setIsLoading(false);
     });
   }
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>{groupName}</h1>
-        <button onClick={handleClose} className={styles.closeBtn}>
-          X
-        </button>
-      </div>
-      <Editor
-        value={groupText}
-        onValueChange={(code) => setGroupText(code)}
-        highlight={(code) => highlight(code, languages.yml, "yaml")}
-        padding={16}
-        className={`${styles.textarea} ${styles.editor}`}
-      />
-      <div className={styles.buttonsContainer}>
-        <button onClick={handleSaveAndDeploy} className={styles.button}>
-          Save & Deploy
-        </button>
-      </div>
+      {!isLoading ? (
+        <>
+          <div className={styles.header}>
+            <h1 className={styles.title}>{groupName}</h1>
+            <CloseBtn handleClose={handleClose} />
+          </div>
+          <Editor
+            value={groupText}
+            onValueChange={(code) => setGroupText(code)}
+            highlight={(code) => highlight(code, languages.yml, "yaml")}
+            padding={16}
+            className={`${styles.textarea} ${styles.editor}`}
+          />
+          <div className={styles.buttonsContainer}>
+            <button onClick={handleSaveAndDeploy} className={styles.button}>
+              Save & Deploy
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className={styles.loading}>
+          <img src="/assets/ldng.webp" alt="Loader" className={styles.loader} />
+        </div>
+      )}
     </div>
   );
 }
