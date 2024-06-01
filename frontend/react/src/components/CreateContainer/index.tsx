@@ -3,6 +3,7 @@ import styles from "./styles.module.css";
 import LoaderGif from "/assets/loader.gif";
 import { apiHandler } from "../../utils/apiHandler";
 import { toast } from "react-toastify";
+import CloseBtn from "../CloseBtn";
 
 type Props = {
   handleClose: () => void;
@@ -80,9 +81,7 @@ function CreateContainer({ handleClose }: Props) {
         <>
           <div className={styles.header}>
             <h1 className={styles.title}>Create container</h1>
-            <button onClick={handleClose} className={styles.closeBtn}>
-              X
-            </button>
+            <CloseBtn handleClose={handleClose} />
           </div>
           <div className={styles.fields}>
             {!isCloneField ? (

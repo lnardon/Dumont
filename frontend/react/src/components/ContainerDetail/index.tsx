@@ -6,6 +6,7 @@ import ResourceUsage from "../ResourceUsage";
 import Terminal from "../Terminal";
 import Logs from "../Logs";
 import { toast } from "react-toastify";
+import CloseBtn from "../CloseBtn";
 
 interface Props {
   handleClose: () => void;
@@ -136,9 +137,7 @@ const ContainerDetail: React.FC<Props> = ({
         <>
           <div className={styles.header}>
             <h1 className={styles.title}>{containerName}</h1>
-            <button onClick={handleClose} className={styles.closeBtn}>
-              X
-            </button>
+            <CloseBtn handleClose={handleClose} />
           </div>
           <div
             className={styles.infoContainer}

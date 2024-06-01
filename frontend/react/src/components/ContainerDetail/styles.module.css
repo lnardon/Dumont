@@ -32,20 +32,6 @@
   border-radius: 0.25rem;
 }
 
-.closeBtn {
-  width: 3.5rem;
-  height: 100%;
-  background-color: rgba(255, 0, 0, 0.76);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  font-weight: 900;
-  font-size: 1.25rem;
-  border-radius: 0.25rem;
-  border: none;
-}
-
 .infoContainer {
   padding: 1rem;
   background-color: rgba(0, 0, 0, 0.8);
