@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { CircleCheck, OctagonX, XCircle } from "lucide-react";
+import AnimatedText from "animated-text-letters";
+import "animated-text-letters/index.css";
 import { apiHandler } from "../../utils/apiHandler";
 import styles from "./styles.module.css";
 import ContainerDetail from "../../components/ContainerDetail";
@@ -32,27 +35,87 @@ const Dashboard: React.FC = () => {
     Size: "",
   });
   const [containerList, setContainerList] = useState<ContainerInfo[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredContainerList, setFilteredContainerList] = useState<
+    ContainerInfo[]
+  >([]);
 
   function getCurrentView() {
     switch (currentView) {
       case "containers":
         return (
-          <div className={styles.containerList}>
-            {containerList.map((container, index) => {
-              return (
-                <ContainerCard
-                  key={container.Id}
-                  name={container.Names[0].replace("/", "")}
-                  handleOpen={() => {
-                    setContainerInfo(container);
-                    setCurrentView("containerDetail");
-                  }}
-                  index={index}
-                  status={container.Status}
+          <>
+            <div className={styles.searchBar}>
+              <div className={styles.searchContainer}>
+                <input
+                  type="text"
+                  placeholder="Search"
+                  className={styles.searchInput}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
-              );
-            })}
-          </div>
+                <XCircle
+                  size={22}
+                  color={searchTerm !== "" ? "#fafafa" : "transparent"}
+                  strokeWidth={searchTerm !== "" ? 2.25 : 1}
+                  onClick={() => setSearchTerm("")}
+                  style={{
+                    cursor: "pointer",
+                    margin: "0rem 0.5rem",
+                    transition: "all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                    marginRight: "0.75rem",
+                  }}
+                />
+              </div>
+
+              <div className={styles.containers}>
+                <div className={styles.runningContainers}>
+                  <CircleCheck />
+                  <AnimatedText
+                    text={filteredContainerList
+                      .filter((container) => container.Status.includes("Up"))
+                      .length.toString()}
+                    animation="fade-in"
+                    delay={64}
+                    easing="ease"
+                    transitionOnlyDifferentLetters={true}
+                    animationDuration={600}
+                  />
+                </div>
+                <div className={styles.stoppedContainers}>
+                  <OctagonX />
+                  <AnimatedText
+                    text={filteredContainerList
+                      .filter((container) =>
+                        container.Status.includes("Exited")
+                      )
+                      .length.toString()}
+                    animation="fade-in"
+                    delay={64}
+                    easing="ease"
+                    transitionOnlyDifferentLetters={true}
+                    animationDuration={600}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className={styles.containerList}>
+              {filteredContainerList.map((container, index) => {
+                return (
+                  <ContainerCard
+                    key={container.Id}
+                    name={container.Names[0].replace("/", "")}
+                    handleOpen={() => {
+                      setContainerInfo(container);
+                      setCurrentView("containerDetail");
+                    }}
+                    index={index}
+                    status={container.Status}
+                  />
+                );
+              })}
+            </div>
+          </>
         );
       case "containerDetail":
         return (
@@ -88,6 +151,9 @@ const Dashboard: React.FC = () => {
     const response = await apiHandler("/getContainerList", "GET", "", {});
     const data = await response.json();
     setContainerList(data || []);
+    if (searchTerm === "") {
+      setFilteredContainerList(data || []);
+    }
   }
 
   useEffect(() => {
@@ -114,6 +180,13 @@ const Dashboard: React.FC = () => {
       }
     }
   }, [containerList, currentView]);
+
+  useEffect(() => {
+    const filteredList = containerList.filter((container) =>
+      container.Names[0].includes(searchTerm)
+    );
+    setFilteredContainerList(filteredList);
+  }, [searchTerm]);
 
   return (
     <div className={styles.dashboard}>
