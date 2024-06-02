@@ -8,7 +8,7 @@
   width: 100%;
   min-height: 44rem;
   padding: 1rem;
-  animation: popupContainer 1.3s cubic-bezier(0.175, 0.685, 0.36, 1.125);
+  animation: popupContainer 0.9s cubic-bezier(0.175, 0.885, 0.41, 1.25);
 }
 
 .header {

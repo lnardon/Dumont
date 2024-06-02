@@ -48,9 +48,10 @@ export default function Header({ handleCreate }: HeaderProps) {
 
     if (popupVisible) {
       iconRef.current?.style.setProperty("transform", "rotate(45deg)");
+      iconRef.current?.style.setProperty("color", "red");
       popupRef.current?.style.setProperty(
         "border-radius",
-        "0.25rem 0rem 0.25rem 0.25rem"
+        "0.5rem 0rem 0.5rem 0.5rem"
       );
       createButtonRef.current?.style.setProperty(
         "border-radius",
@@ -59,6 +60,7 @@ export default function Header({ handleCreate }: HeaderProps) {
       createButtonRef.current?.blur();
     } else {
       iconRef.current?.style.setProperty("transform", "rotate(0deg)");
+      iconRef.current?.style.setProperty("color", "black");
       popupRef.current?.style.setProperty("border-radius", "0.25rem");
       createButtonRef.current?.style.setProperty("border-radius", "0.25rem");
     }
@@ -100,7 +102,7 @@ export default function Header({ handleCreate }: HeaderProps) {
           strokeWidth={2.5}
           width={28}
           style={{
-            transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+            transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
           }}
         />
       </button>

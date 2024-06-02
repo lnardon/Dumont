@@ -31,7 +31,7 @@ func handleSaveAndDeployGroup(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	file, err := os.Create(fmt.Sprintf("./groups/%s.yml", req.Name))
+	file, err := os.Create(fmt.Sprintf("./groups/%s/%s.yml", req.Name, req.Name))
 	if err != nil {
 		http.Error(w, "Error creating file", http.StatusInternalServerError)
 		log.Println(err)
@@ -45,7 +45,7 @@ func handleSaveAndDeployGroup(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	cmd := exec.Command("docker", "compose", "-f", fmt.Sprintf("./groups/%s.yml", req.Name), "up", "-d")
+	cmd := exec.Command("docker", "compose", "-f", fmt.Sprintf("./groups/%s/%s.yml", req.Name, req.Name), "up", "-d")
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer
