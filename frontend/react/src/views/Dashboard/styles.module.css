@@ -102,6 +102,7 @@
   font-size: 1rem;
   font-weight: 900;
   gap: 1rem;
+  animation: appear 0.6s ease;
 }
 
 .stoppedContainers {
@@ -116,6 +117,7 @@
   font-weight: 900;
   border: 2px solid #646cff;
   gap: 1rem;
+  animation: appear 0.6s ease;
 }
 
 .containers-title {

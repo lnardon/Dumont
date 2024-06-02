@@ -31,6 +31,13 @@ func handleSaveAndDeployGroup(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
+	err = os.MkdirAll(fmt.Sprintf("./groups/%s", req.Name), 0755)
+	if err != nil {
+		http.Error(w, "Error creating directory", http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+
 	file, err := os.Create(fmt.Sprintf("./groups/%s/%s.yml", req.Name, req.Name))
 	if err != nil {
 		http.Error(w, "Error creating file", http.StatusInternalServerError)

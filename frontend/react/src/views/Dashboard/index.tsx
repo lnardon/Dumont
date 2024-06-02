@@ -75,7 +75,7 @@ const Dashboard: React.FC = () => {
                     text={filteredContainerList
                       .filter((container) => container.Status.includes("Up"))
                       .length.toString()}
-                    animation="fade-in"
+                    animation="pop-up"
                     delay={64}
                     easing="ease"
                     transitionOnlyDifferentLetters={true}
@@ -90,7 +90,7 @@ const Dashboard: React.FC = () => {
                         container.Status.includes("Exited")
                       )
                       .length.toString()}
-                    animation="fade-in"
+                    animation="pop-up"
                     delay={64}
                     easing="ease"
                     transitionOnlyDifferentLetters={true}
@@ -151,9 +151,11 @@ const Dashboard: React.FC = () => {
     const response = await apiHandler("/getContainerList", "GET", "", {});
     const data = await response.json();
     setContainerList(data || []);
-    if (searchTerm === "") {
-      setFilteredContainerList(data || []);
-    }
+
+    const filteredList = data.filter((container: ContainerInfo) =>
+      container.Names[0].includes(searchTerm)
+    );
+    setFilteredContainerList(filteredList);
   }
 
   useEffect(() => {
@@ -162,10 +164,15 @@ const Dashboard: React.FC = () => {
       getInfo();
     }, 5000);
 
+    const filteredList = containerList.filter((container) =>
+      container.Names[0].includes(searchTerm)
+    );
+    setFilteredContainerList(filteredList);
+
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  }, [searchTerm]);
 
   useEffect(() => {
     if (currentView === "containerDetail") {
@@ -180,13 +187,6 @@ const Dashboard: React.FC = () => {
       }
     }
   }, [containerList, currentView]);
-
-  useEffect(() => {
-    const filteredList = containerList.filter((container) =>
-      container.Names[0].includes(searchTerm)
-    );
-    setFilteredContainerList(filteredList);
-  }, [searchTerm]);
 
   return (
     <div className={styles.dashboard}>

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import AnimatedText from "animated-text-letters";
-import "animated-text-letters/dist/index.css";
+import "animated-text-letters/index.css";
 import styles from "./styles.module.css";
 import { Boxes, Container, Plus } from "lucide-react";
 
@@ -31,7 +31,6 @@ export default function Header({ handleCreate }: HeaderProps) {
     const interval = setInterval(() => {
       const time = getCurrentTime();
       setTime(time);
-      console.log("Time updated", handleCreate);
     }, 1000);
     return () => clearInterval(interval);
   }, []);
@@ -83,9 +82,11 @@ export default function Header({ handleCreate }: HeaderProps) {
       <span className={styles.time}>
         <AnimatedText
           text={time}
-          animateOnlyDifferentLetters={true}
+          transitionOnlyDifferentLetters={true}
           animation="fade-in"
           delay={48}
+          animationDuration={600}
+          easing="ease"
         />
       </span>
       <button
