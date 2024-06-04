@@ -70,22 +70,3 @@ docker run -d -e JWT_SIGNING_KEY="YOURSECRETKEYHERE" -e LOGIN_USERNAME="YOURUSER
 </br>
 </br>
 </br>
-
-## **Screenshots**
-
----
-
-Login
-<img src="./images/s0.png" style="width: 100%"/>
-
-Dashboard
-
-<img src="./images/s1.png" style="width: 100%"/>
-
-View container
-
-<img src="./images/s2.png" style="width: 100%"/>
-
-Create container
-
-<img src="./images/s3.png" style="width: 100%"/>
