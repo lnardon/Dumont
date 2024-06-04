@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 import { apiHandler } from "../../utils/apiHandler";
 import styles from "./styles.module.css";
 import formatBytes from "../../utils/formatBytes";
@@ -125,26 +126,22 @@ const ResourceUsage: React.FC<{ containerId: string }> = ({ containerId }) => {
             I / O
           </text>
         </svg>
-        <p style={{ textAlign: "center" }}>
-          <span
-            className={styles.arrow}
-            style={{
-              color: "#2EF657",
-            }}
-          >
-            {"\u2193"}
-          </span>
-          {`${formatBytes(data?.networks?.eth0?.rx_bytes) || 0} | ${
-            formatBytes(data?.networks?.eth0?.tx_bytes) || 0
-          }`}
-          <span
-            className={styles.arrow}
-            style={{
-              color: "#646cff",
-            }}
-          >
-            {"\u2191"}
-          </span>
+        <p className={styles.networkText}>
+          {formatBytes(data?.networks?.eth0?.rx_bytes) || 0}
+          <ArrowBigDownDash
+            color="#2EF657"
+            fill="#2EF657aa"
+            size={20}
+            strokeWidth={2}
+          />
+          |
+          <ArrowBigUpDash
+            color="#646cff"
+            fill="#646cffaa"
+            size={20}
+            strokeWidth={2}
+          />
+          {formatBytes(data?.networks?.eth0?.tx_bytes) || 0}
         </p>
       </div>
     </div>

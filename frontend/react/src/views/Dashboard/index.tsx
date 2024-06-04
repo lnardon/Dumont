@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CircleCheck, OctagonX, XCircle } from "lucide-react";
+import { XCircle, SquareArrowUp, SquareArrowDown } from "lucide-react";
 import AnimatedText from "animated-text-letters";
 import "animated-text-letters/index.css";
 import { apiHandler } from "../../utils/apiHandler";
@@ -70,7 +70,7 @@ const Dashboard: React.FC = () => {
 
               <div className={styles.containers}>
                 <div className={styles.runningContainers}>
-                  <CircleCheck />
+                  <SquareArrowUp />
                   <AnimatedText
                     text={filteredContainerList
                       .filter((container) => container.Status.includes("Up"))
@@ -83,7 +83,7 @@ const Dashboard: React.FC = () => {
                   />
                 </div>
                 <div className={styles.stoppedContainers}>
-                  <OctagonX />
+                  <SquareArrowDown />
                   <AnimatedText
                     text={filteredContainerList
                       .filter((container) =>
@@ -99,6 +99,9 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            <span className={styles.separator}></span>
+
             <div className={styles.containerList}>
               {filteredContainerList.map((container, index) => {
                 return (

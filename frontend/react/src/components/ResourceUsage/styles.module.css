@@ -21,8 +21,10 @@
   background-color: rgba(0, 0, 0, 0.8);
 }
 
-.arrow {
-  padding: 0.125rem 0.25rem;
-  border-radius: 0.25rem;
-  font-weight: 700;
+.networkText {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
 }

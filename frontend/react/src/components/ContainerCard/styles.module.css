@@ -12,6 +12,7 @@
   min-width: 15rem;
   flex: 1;
   opacity: 0;
+  transition: all 1.1s ease-in-out;
 }
 
 .name {
