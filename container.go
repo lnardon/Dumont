@@ -9,6 +9,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -37,73 +38,93 @@ type CreateRequest struct {
 }
 
 func StartContainer(w http.ResponseWriter, r *http.Request) {
-	var req CreateRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
-		return
-	}
-	defer r.Body.Close()
+    var req CreateRequest
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
+        return
+    }
+    defer r.Body.Close()
 
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.42"))
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error creating Docker client: %s", err), http.StatusInternalServerError)
-		return
-	}
-	defer cli.Close()
+    cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.42"))
+    if err != nil {
+        http.Error(w, fmt.Sprintf("Error creating Docker client: %s", err), http.StatusInternalServerError)
+        return
+    }
+    defer cli.Close()
 
-	ctx := context.Background()
-	portBindings := nat.PortMap{}
-	if req.Ports != "" {
-		hostPort := strings.Split(req.Ports, ":")[0]
-		containerPort := strings.Split(req.Ports, ":")[1] + "/tcp"
-		portBindings[nat.Port(containerPort)] = []nat.PortBinding{{HostPort: hostPort}}
-	}
+    ctx := context.Background()
+    portBindings := nat.PortMap{}
+    if req.Ports != "" {
+        hostPort := strings.Split(req.Ports, ":")[0]
+        containerPort := strings.Split(req.Ports, ":")[1] + "/tcp"
+        portBindings[nat.Port(containerPort)] = []nat.PortBinding{{HostPort: hostPort}}
+    }
 
-	restartPolicy := container.RestartPolicy{}
-	if req.RestartPolicy != "" {
-		restartPolicy.Name = req.RestartPolicy
-	}
+    restartPolicy := container.RestartPolicy{}
+    if req.RestartPolicy != "" {
+        restartPolicy.Name = req.RestartPolicy
+    }
 
-	validEnv := make([]string, 0)
+    validEnv := make([]string, 0)
     for _, env := range req.Variables {
         if strings.Contains(env, "=") {
             validEnv = append(validEnv, env)
         }
     }
 
-	validVolumes := make([]string, 0)
-	for _, volume := range req.Volumes {
-		if volume != "" {
-			validVolumes = append(validVolumes, volume)
-		}
-	}
+    validVolumes := make([]string, 0)
+    for _, volume := range req.Volumes {
+        if volume != "" {
+            validVolumes = append(validVolumes, volume)
+        }
+    }
 
-	resp, err := cli.ContainerCreate(ctx, &container.Config{
-		Image: req.Image,
-		Env:  validEnv,
-	}, &container.HostConfig{
-		PortBindings: portBindings,
-		Binds:        validVolumes,
-		RestartPolicy: restartPolicy,
-	}, nil, nil, req.ContainerName)
+    resp, err := cli.ContainerCreate(ctx, &container.Config{
+        Image: req.Image,
+        Env:  validEnv,
+    }, &container.HostConfig{
+        PortBindings: portBindings,
+        Binds:        validVolumes,
+        RestartPolicy: restartPolicy,
+    }, nil, nil, req.ContainerName)
 
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error creating container: %s", err), http.StatusInternalServerError)
-		return
-	}
+    if err != nil {
+        if strings.Contains(err.Error(), "No such image") {
+            out, pullErr := cli.ImagePull(ctx, req.Image, types.ImagePullOptions{})
+            if pullErr != nil {
+                http.Error(w, fmt.Sprintf("Error pulling container image: %s", pullErr), http.StatusInternalServerError)
+                return
+            }
+            io.Copy(os.Stdout, out)
+            out.Close()
 
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error creating container: %s", err), http.StatusInternalServerError)
-		return
-	}
-	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
-		http.Error(w, fmt.Sprintf("Error starting container: %s", err), http.StatusInternalServerError)
-		return
-	}
+            resp, err = cli.ContainerCreate(ctx, &container.Config{
+                Image: req.Image,
+                Env:  validEnv,
+            }, &container.HostConfig{
+                PortBindings: portBindings,
+                Binds:        validVolumes,
+                RestartPolicy: restartPolicy,
+            }, nil, nil, req.ContainerName)
+            if err != nil {
+                http.Error(w, fmt.Sprintf("Error creating container after pulling image: %s", err), http.StatusInternalServerError)
+                return
+            }
+        } else {
+            http.Error(w, fmt.Sprintf("Error creating container: %s", err), http.StatusInternalServerError)
+            return
+        }
+    }
 
-	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "Container started successfully: %s\n", resp.ID)
+    if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+        http.Error(w, fmt.Sprintf("Error starting container: %s", err), http.StatusInternalServerError)
+        return
+    }
+
+    w.WriteHeader(http.StatusCreated)
+    fmt.Fprintf(w, "Container started successfully: %s\n", resp.ID)
 }
+
 
 func StopContainer(w http.ResponseWriter, r *http.Request) {
 	var req BasicRequest
