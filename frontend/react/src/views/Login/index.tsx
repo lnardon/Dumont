@@ -8,7 +8,7 @@ const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
   const [password, setPassword] = useState("");
 
   async function handleLogin() {
-    const raw = await fetch("/login", {
+    const raw = await fetch("/api/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

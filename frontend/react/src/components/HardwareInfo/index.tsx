@@ -13,7 +13,7 @@ const HardwareInfoComponent: React.FC = () => {
   const [totalStorage, setTotalStorage] = useState(1);
 
   async function getInfo() {
-    const response = await apiHandler("/getHardwareInfo", "GET", "", {});
+    const response = await apiHandler("/api/get_hardware_info", "GET", "", {});
     const data = await response.json();
     const cpuUsageValue = parseFloat(data.cpu_usage.replace("%", ""));
     const ramUsageValue = parseFloat(data.ram_usage.match(/(\d+.\d+)%/)[1]);

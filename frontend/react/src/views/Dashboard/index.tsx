@@ -151,7 +151,7 @@ const Dashboard: React.FC = () => {
   }
 
   async function getInfo() {
-    const response = await apiHandler("/getContainerList", "GET", "", {});
+    const response = await apiHandler("/api/get_all_containers", "GET", "", {});
     const data = await response.json();
     setContainerList(data || []);
 

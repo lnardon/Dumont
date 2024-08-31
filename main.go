@@ -13,20 +13,23 @@ import (
 func main() {
     http.Handle("/", http.FileServer(http.Dir("./frontend/react/dist")))
 	
-	http.HandleFunc("/login", AuthModule.Login)
+	// Auth
+	http.HandleFunc("/api/login", AuthModule.Login)
 
-	http.HandleFunc("/getContainerList", AuthModule.VerifyJWT(ContainerModule.HandleContainerList))
-	http.HandleFunc("/deleteContainer", AuthModule.VerifyJWT(ContainerModule.HandleDeleteContainer))
-	http.HandleFunc("/getHardwareInfo", AuthModule.VerifyJWT(HardwareModule.HandleHardwareInfo))
-	http.HandleFunc("/createContainer", AuthModule.VerifyJWT(ContainerModule.StartContainer))
-	http.HandleFunc("/stopContainer", AuthModule.VerifyJWT(ContainerModule.StopContainer))
-	http.HandleFunc("/runContainer", AuthModule.VerifyJWT(ContainerModule.RunContainerById))
-	http.HandleFunc("/getContainerInfo", AuthModule.VerifyJWT(ContainerModule.HandleGetContainerInfo))
-	http.HandleFunc("/cloneRepo", AuthModule.VerifyJWT(ContainerModule.HandleClone))
-	http.HandleFunc("/terminal", ContainerModule.TerminalHandler)
-	http.HandleFunc("/logs", ContainerModule.LogsHandler)
+	// Containers
+	http.HandleFunc("/api/get_all_containers", AuthModule.VerifyJWT(ContainerModule.HandleContainerList))
+	http.HandleFunc("/api/create_container", AuthModule.VerifyJWT(ContainerModule.StartContainer))
+	http.HandleFunc("/api/get_container_info", AuthModule.VerifyJWT(ContainerModule.HandleGetContainerInfo))
+	http.HandleFunc("/api/container_logs", ContainerModule.LogsHandler)
+	http.HandleFunc("/api/container_terminal", ContainerModule.TerminalHandler)
+	http.HandleFunc("/api/stop_container", AuthModule.VerifyJWT(ContainerModule.StopContainer))
+	http.HandleFunc("/api/run_container", AuthModule.VerifyJWT(ContainerModule.RunContainerById))
+	http.HandleFunc("/api/delete_container", AuthModule.VerifyJWT(ContainerModule.HandleDeleteContainer))
 
-	http.HandleFunc("/saveAndDeployGroup", AuthModule.VerifyJWT(GroupModule.HandleSaveAndDeployGroup))
+	// Misc
+	http.HandleFunc("/api/get_hardware_info", AuthModule.VerifyJWT(HardwareModule.HandleHardwareInfo))
+	http.HandleFunc("/api/clone_repo", AuthModule.VerifyJWT(ContainerModule.HandleClone))
+	http.HandleFunc("/api/save_and_deploy_group", AuthModule.VerifyJWT(GroupModule.HandleSaveAndDeployGroup))
 
 
 	const PORT = ":3323"

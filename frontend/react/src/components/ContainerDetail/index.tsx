@@ -42,7 +42,7 @@ const ContainerDetail: React.FC<Props> = ({
 
   async function handleDelete() {
     const response = await toast.promise(
-      apiHandler("/deleteContainer", "POST", "application/json", {
+      apiHandler("/api/delete_container", "POST", "application/json", {
         container_id: containerId,
       }),
       {
@@ -60,7 +60,7 @@ const ContainerDetail: React.FC<Props> = ({
     setMessage("Stopping container");
     setIsLoading(true);
     const response = await toast.promise(
-      apiHandler("/stopContainer", "POST", "application/json", {
+      apiHandler("/api/stop_container", "POST", "application/json", {
         container_id: containerId,
       }),
       {
@@ -78,7 +78,7 @@ const ContainerDetail: React.FC<Props> = ({
     setMessage("Starting container");
     setIsLoading(true);
     const response = await toast.promise(
-      apiHandler("/runContainer", "POST", "application/json", {
+      apiHandler("/api/run_container", "POST", "application/json", {
         container_id: containerId,
       }),
       {

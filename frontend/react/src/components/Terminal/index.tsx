@@ -34,7 +34,7 @@ function Terminal({
   useEffect(() => {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const host = window.location.host;
-    const wsUrl = `${protocol}//${host}/terminal`;
+    const wsUrl = `${protocol}//${host}/api/container_terminal`;
 
     ws.current = new WebSocket(wsUrl);
     ws.current.binaryType = "arraybuffer";

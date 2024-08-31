@@ -27,7 +27,7 @@ function CreateContainer({ handleClose }: Props) {
       return;
     }
 
-    const response = await apiHandler("/cloneRepo", "POST", "", {
+    const response = await apiHandler("/api/clone_repo", "POST", "", {
       repo_url: repoLink,
       container_port: ports,
       containerName: containerName.replace(" ", ""),
@@ -50,7 +50,7 @@ function CreateContainer({ handleClose }: Props) {
     }
 
     const response = await toast.promise(
-      apiHandler("/createContainer", "POST", "", {
+      apiHandler("/api/create_container", "POST", "", {
         container_name: containerName.replace(" ", ""),
         ports: ports,
         image: imageName,

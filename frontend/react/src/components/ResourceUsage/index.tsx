@@ -10,7 +10,7 @@ const ResourceUsage: React.FC<{ containerId: string }> = ({ containerId }) => {
   const [data, setData] = useState<any>({});
 
   function getInfo() {
-    const response = apiHandler("/getContainerInfo", "POST", "", {
+    const response = apiHandler("/api/get_container_info", "POST", "", {
       container_id: containerId,
     });
 

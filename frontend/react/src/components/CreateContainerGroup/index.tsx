@@ -28,7 +28,7 @@ services:
     const n = new Date().getTime().toString();
     setGroupName(n);
     setIsLoading(true);
-    apiHandler("/saveAndDeployGroup", "POST", "application/json", {
+    apiHandler("/api/save_and_deploy_group", "POST", "application/json", {
       name: n,
       text: groupText,
     }).then((response) => {
