@@ -1,4 +1,4 @@
-package main
+package auth
 
 import (
 	"encoding/json"
@@ -42,7 +42,7 @@ func generateJWT() (string, error) {
     return tokenString, nil
 }
 
-func verifyJWT(endpointHandler http.HandlerFunc) http.HandlerFunc {
+func VerifyJWT(endpointHandler http.HandlerFunc) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
         if r.Header["Authorization"] != nil {
             token, err := jwt.Parse(r.Header["Authorization"][0], func(token *jwt.Token) (interface{}, error) {

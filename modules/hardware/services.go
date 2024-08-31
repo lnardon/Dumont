@@ -1,4 +1,4 @@
-package main
+package hardware
 
 import (
 	"bufio"

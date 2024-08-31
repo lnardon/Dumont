@@ -3,28 +3,33 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	AuthModule "Dumont/modules/auth"
+	ContainerModule "Dumont/modules/container"
+	GroupModule "Dumont/modules/group"
+	HardwareModule "Dumont/modules/hardware"
 )
 
 func main() {
     http.Handle("/", http.FileServer(http.Dir("./frontend/react/dist")))
 	
-	http.HandleFunc("/login", Login)
+	http.HandleFunc("/login", AuthModule.Login)
 
-	http.HandleFunc("/getContainerList", verifyJWT(HandleContainerList))
-	http.HandleFunc("/deleteContainer", verifyJWT(HandleDeleteContainer))
-	http.HandleFunc("/getHardwareInfo", verifyJWT(HandleHardwareInfo))
-	http.HandleFunc("/createContainer", verifyJWT(StartContainer))
-	http.HandleFunc("/stopContainer", verifyJWT(StopContainer))
-	http.HandleFunc("/runContainer", verifyJWT(RunContainerById))
-	http.HandleFunc("/getContainerInfo", verifyJWT(HandleGetContainerInfo))
-	http.HandleFunc("/cloneRepo", verifyJWT(HandleClone))
-	http.HandleFunc("/terminal", TerminalHandler)
-	http.HandleFunc("/logs", LogsHandler)
+	http.HandleFunc("/getContainerList", AuthModule.VerifyJWT(ContainerModule.HandleContainerList))
+	http.HandleFunc("/deleteContainer", AuthModule.VerifyJWT(ContainerModule.HandleDeleteContainer))
+	http.HandleFunc("/getHardwareInfo", AuthModule.VerifyJWT(HardwareModule.HandleHardwareInfo))
+	http.HandleFunc("/createContainer", AuthModule.VerifyJWT(ContainerModule.StartContainer))
+	http.HandleFunc("/stopContainer", AuthModule.VerifyJWT(ContainerModule.StopContainer))
+	http.HandleFunc("/runContainer", AuthModule.VerifyJWT(ContainerModule.RunContainerById))
+	http.HandleFunc("/getContainerInfo", AuthModule.VerifyJWT(ContainerModule.HandleGetContainerInfo))
+	http.HandleFunc("/cloneRepo", AuthModule.VerifyJWT(ContainerModule.HandleClone))
+	http.HandleFunc("/terminal", ContainerModule.TerminalHandler)
+	http.HandleFunc("/logs", ContainerModule.LogsHandler)
 
-	http.HandleFunc("/saveAndDeployGroup", verifyJWT(handleSaveAndDeployGroup))
+	http.HandleFunc("/saveAndDeployGroup", AuthModule.VerifyJWT(GroupModule.HandleSaveAndDeployGroup))
 
 
-	const PORT = ":3322"
+	const PORT = ":3323"
 	fmt.Println("Server started on port " , PORT)
 	err := http.ListenAndServe(PORT, nil)
 	if err != nil {

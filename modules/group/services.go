@@ -1,4 +1,4 @@
-package main
+package group
 
 import (
 	"bytes"
@@ -11,12 +11,8 @@ import (
 	"os/exec"
 )
 
-type SaveAndDeployRequest struct {
-	Name string `json:"name"`
-	Text string `json:"text"`
-}
 
-func handleSaveAndDeployGroup(w http.ResponseWriter, r *http.Request){
+func HandleSaveAndDeployGroup(w http.ResponseWriter, r *http.Request){
 	body, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {

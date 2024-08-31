@@ -1,4 +1,4 @@
-package main
+package container
 
 import (
 	"bytes"
@@ -21,21 +21,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type BasicRequest struct {
-	RepoURL string `json:"repo_url"`
-	Port string `json:"container_port"`
-	ContainerId string `json:"container_id"`
-	ContainerName string `json:"container_name"`
-}
-
-type CreateRequest struct {
-	ContainerName   string `json:"container_name"`
-	Ports           string `json:"ports"`
-	Image           string `json:"image"`
-	Variables     []string `json:"variables,omitempty"`
-	Volumes       []string `json:"volumes,omitempty"`
-	RestartPolicy string   `json:"restartPolicy,omitempty"`
-}
 
 func StartContainer(w http.ResponseWriter, r *http.Request) {
     var req CreateRequest
@@ -127,7 +112,7 @@ func StartContainer(w http.ResponseWriter, r *http.Request) {
 
 
 func StopContainer(w http.ResponseWriter, r *http.Request) {
-	var req BasicRequest
+	var req CloneRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
 		return
@@ -155,7 +140,7 @@ func StopContainer(w http.ResponseWriter, r *http.Request) {
 }
 
 func RunContainerById(w http.ResponseWriter, r *http.Request) {
-	var req BasicRequest
+	var req CloneRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
 		return
@@ -202,7 +187,7 @@ func HandleClone(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req BasicRequest
+	var req CloneRequest
 	err = json.Unmarshal(body, &req)
 	if err != nil {
 		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
@@ -278,7 +263,7 @@ func HandleGetContainerInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req BasicRequest
+	var req CloneRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error decoding request body: %s", err), http.StatusBadRequest)
@@ -326,7 +311,7 @@ func HandleDeleteContainer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req BasicRequest
+	var req CloneRequest
 	err = json.Unmarshal(body, &req)
 	if err != nil {
 		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
