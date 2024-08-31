@@ -109,27 +109,39 @@ export default function Header({ handleCreate }: HeaderProps) {
       </button>
 
       {popupVisible && (
-        <div className={styles.popup} ref={popupRef}>
-          <button
-            className={styles.btn}
-            onClick={() => handleCreate("createContainer")}
+        <div className={styles.bg}>
+          <div
+            className={styles.popup}
+            ref={popupRef}
             style={{
-              background: "#646cff",
+              top:
+                createButtonRef.current!.offsetTop +
+                createButtonRef.current!.offsetHeight +
+                20,
+              left: createButtonRef.current!.getBoundingClientRect().left - 167,
             }}
           >
-            <Container strokeWidth={1.5} />
-            Container
-          </button>
-          <button
-            className={styles.btn}
-            onClick={() => handleCreate("createContainerGroup")}
-            style={{
-              background: "rgb(15, 113, 226)",
-            }}
-          >
-            <Boxes strokeWidth={1.5} />
-            Container Group
-          </button>
+            <button
+              className={styles.btn}
+              onClick={() => handleCreate("createContainer")}
+              style={{
+                background: "#646cff",
+              }}
+            >
+              <Container strokeWidth={1.5} />
+              Container
+            </button>
+            <button
+              className={styles.btn}
+              onClick={() => handleCreate("createContainerGroup")}
+              style={{
+                background: "rgb(15, 113, 226)",
+              }}
+            >
+              <Boxes strokeWidth={1.5} />
+              Container Group
+            </button>
+          </div>
         </div>
       )}
     </div>
