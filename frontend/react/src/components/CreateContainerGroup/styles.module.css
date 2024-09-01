@@ -30,6 +30,7 @@
   text-overflow: ellipsis;
   overflow: hidden;
   border-radius: 0.25rem;
+  border: none;
 }
 
 .textarea {

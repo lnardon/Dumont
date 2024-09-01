@@ -21,15 +21,13 @@ services:
     ports:
       - "3223:80"
     restart: always`);
-  const [groupName, setGroupName] = useState("New Container Group");
+  const [groupName, setGroupName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   function handleSaveAndDeploy() {
-    const n = new Date().getTime().toString();
-    setGroupName(n);
     setIsLoading(true);
     apiHandler("/api/save_and_deploy_group", "POST", "application/json", {
-      name: n,
+      name: groupName != "" ? groupName : Date.now().toString(),
       text: groupText,
     }).then((response) => {
       if (response.ok) {
@@ -47,7 +45,13 @@ services:
       {!isLoading ? (
         <>
           <div className={styles.header}>
-            <h1 className={styles.title}>{groupName}</h1>
+            <input
+              type="text"
+              className={styles.title}
+              placeholder="New Group Name"
+              value={groupName}
+              onChange={(e) => setGroupName(e.target.value)}
+            />
             <CloseBtn handleClose={handleClose} />
           </div>
           <Editor
