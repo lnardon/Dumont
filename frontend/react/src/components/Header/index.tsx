@@ -117,8 +117,8 @@ export default function Header({ handleCreate }: HeaderProps) {
               top:
                 createButtonRef.current!.offsetTop +
                 createButtonRef.current!.offsetHeight +
-                20,
-              left: createButtonRef.current!.getBoundingClientRect().left - 167,
+                16,
+              left: createButtonRef.current!.getBoundingClientRect().left - 169,
             }}
           >
             <button
