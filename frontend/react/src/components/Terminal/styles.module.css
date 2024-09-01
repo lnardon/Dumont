@@ -27,6 +27,11 @@
 
 .success {
   animation: fadeIn 0.7s 0.5s ease forwards;
+  margin-bottom: 1rem;
+  border-left: 0.25rem solid limegreen;
+  padding-left: 0.5rem;
+  border-radius: 0.25rem;
+  opacity: 0;
 }
 
 .terminalHeader {

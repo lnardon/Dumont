@@ -79,18 +79,7 @@ function Terminal({
     <div className={styles.container} ref={containerRef}>
       <div className={styles.terminal}>
         {isSocketConnected && (
-          <span
-            className={styles.success}
-            style={{
-              marginBottom: "1rem",
-              borderLeft: "0.25rem solid limegreen",
-              paddingLeft: "0.5rem",
-              borderRadius: "0.25rem",
-              opacity: 0,
-            }}
-          >
-            &#10003; Terminal connected!
-          </span>
+          <span className={styles.success}>&#10003; Terminal connected!</span>
         )}
         <div className={styles.std} ref={listRef}>
           {data.split("|new_line|").map((line, idx) => {
