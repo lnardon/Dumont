@@ -4,10 +4,9 @@ import { apiHandler } from "../../utils/apiHandler";
 import formatBytes from "../../utils/formatBytes";
 
 const HardwareInfoComponent: React.FC = () => {
-  const [cpuInfo, setCpuInfo] = useState("0%");
+  const [cpuCores, setCpuCores] = useState<string[]>([]);
   const [cpuClock, setCpuClock] = useState(0);
   const [ramInfo, setRamInfo] = useState("0");
-  const [cpuUsage, setCpuUsage] = useState(0);
   const [ramUsage, setRamUsage] = useState(0);
   const [usedStorage, setUsedStorage] = useState(0);
   const [totalStorage, setTotalStorage] = useState(1);
@@ -15,12 +14,9 @@ const HardwareInfoComponent: React.FC = () => {
   async function getInfo() {
     const response = await apiHandler("/api/get_hardware_info", "GET", "", {});
     const data = await response.json();
-    const cpuUsageValue = parseFloat(data.cpu_usage.replace("%", ""));
-    const ramUsageValue = parseFloat(data.ram_usage.match(/(\d+.\d+)%/)[1]);
-    setCpuInfo(data.cpu_usage);
+    setCpuCores(data.cpu_usage);
     setRamInfo(data.ram_usage);
-    setCpuUsage(cpuUsageValue);
-    setRamUsage(ramUsageValue);
+    setRamUsage(parseFloat(data.ram_usage.match(/(\d+.\d+)%/)[1]));
     setUsedStorage(data.usedStorage);
     setTotalStorage(data.totalStorage);
     setCpuClock(data.cpuClockSpeed);
@@ -36,29 +32,51 @@ const HardwareInfoComponent: React.FC = () => {
 
   useEffect(() => {
     getInfo();
-    const interval = setInterval(async () => {
-      getInfo();
-    }, 3000);
-
-    return () => {
-      clearInterval(interval);
-    };
+    const interval = setInterval(getInfo, 4000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
     <div className={styles.container}>
       <span className={styles.blinbkingDot}></span>
       <div className={styles.hardwareInfo}>
-        <div className={styles.hardwareInfoItem}>
+        <div key={"cpu_cores"} className={styles.hardwareInfoItem}>
           <div className={styles.hardwareInfoTitle}>
-            <h3 className={styles.title}>CPU</h3>
-            <p className={styles.infoDetail}>{cpuInfo}</p>
+            <h3 className={styles.title}>
+              CPU
+              <span
+                style={{
+                  width: "50%",
+                  fontSize: "0.8rem",
+                  fontWeight: 400,
+                  marginLeft: "0.25rem",
+                }}
+              >
+                (
+                {cpuCores.length > 1
+                  ? ` ${cpuCores.length - 1} cores `
+                  : " 1 core "}
+                )
+              </span>
+            </h3>
+            <p className={styles.infoDetail}>
+              {cpuCores[0]?.split(":")[1] || ""}
+            </p>
           </div>
-          <div className={styles.progressBar}>
-            <div
-              className={styles.progress}
-              style={{ width: `${cpuUsage.toFixed(2)}%` }}
-            ></div>
+          <div className={styles.coresContainer}>
+            {cpuCores.length > 1 &&
+              cpuCores.slice(1).map((core, index) => (
+                <div className={styles.progressBar}>
+                  <div
+                    className={styles.progress}
+                    key={index}
+                    style={{
+                      width: core.split(":")[1],
+                      transition: "width 0.3s ease",
+                    }}
+                  ></div>
+                </div>
+              ))}
           </div>
           <p className={styles.infoDetail}>{formatFrequency(cpuClock)}</p>
         </div>
@@ -67,7 +85,6 @@ const HardwareInfoComponent: React.FC = () => {
             <h3 className={styles.title}>RAM</h3>
             <p className={styles.infoDetail}>{ramUsage.toFixed(2)}%</p>
           </div>
-          {/* TODO: Change this to a cleaner solution */}
           <div className={styles.progressBar}>
             <div
               className={styles.progress}

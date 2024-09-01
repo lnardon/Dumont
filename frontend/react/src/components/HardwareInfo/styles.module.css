@@ -36,6 +36,9 @@
   font-size: 1rem;
   font-weight: 700;
   color: antiquewhite;
+  width: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .infoDetail {
@@ -45,19 +48,31 @@
   text-align: end;
 }
 
+.coresContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
 .progressBar {
   height: 20px;
-  background-color: #555555;
+  background-color: #363636;
   border-radius: 5px;
   overflow: hidden;
   margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.25rem;
+  flex: 1;
 }
 
 .progress {
+  display: flex;
   height: 100%;
   background-color: antiquewhite;
-  border-radius: 5px;
-  transition: width 0.3s ease;
+  border-radius: 0.25rem;
 }
 
 @keyframes blink {
