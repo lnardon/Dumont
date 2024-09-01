@@ -27,9 +27,9 @@ func main() {
 	http.HandleFunc("/api/delete_container", AuthModule.VerifyJWT(ContainerModule.HandleDeleteContainer))
 
 	// Misc
+	http.HandleFunc("/api/save_and_deploy_group", AuthModule.VerifyJWT(GroupModule.HandleSaveAndDeployGroup))
 	http.HandleFunc("/api/get_hardware_info", AuthModule.VerifyJWT(HardwareModule.HandleHardwareInfo))
 	http.HandleFunc("/api/clone_repo", AuthModule.VerifyJWT(ContainerModule.HandleClone))
-	http.HandleFunc("/api/save_and_deploy_group", AuthModule.VerifyJWT(GroupModule.HandleSaveAndDeployGroup))
 
 
 	const PORT = ":3323"

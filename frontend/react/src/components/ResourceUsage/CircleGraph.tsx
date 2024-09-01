@@ -8,6 +8,7 @@ export default function CircleGraph({
   const radius = 28;
   const circumference = 2 * Math.PI * radius;
   const strokePct = ((100 - percentage) * circumference) / 100;
+
   return (
     <svg width={64} height={64}>
       <circle

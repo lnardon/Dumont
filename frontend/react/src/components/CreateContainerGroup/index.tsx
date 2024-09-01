@@ -14,7 +14,6 @@ export default function CreateContainerGroup({
   handleClose: () => void;
 }) {
   const [groupText, setGroupText] = useState(`version: '3.9'
-
 services:
   nginx:
     image: nginx:latest
@@ -69,7 +68,11 @@ services:
         </>
       ) : (
         <div className={styles.loading}>
-          <img src="/assets/ldng.webp" alt="Loader" className={styles.loader} />
+          <img
+            src="/assets/loader.gif"
+            alt="Loader"
+            className={styles.loader}
+          />
         </div>
       )}
     </div>

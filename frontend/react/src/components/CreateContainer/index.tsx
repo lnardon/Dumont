@@ -10,7 +10,6 @@ type Props = {
 };
 
 function CreateContainer({ handleClose }: Props) {
-  const delay = 40;
   const [isLoading, setIsLoading] = useState(false);
   const [imageName, setImageName] = useState("");
   const [ports, setPorts] = useState("");
@@ -20,6 +19,8 @@ function CreateContainer({ handleClose }: Props) {
   const [repoLink, setRepoLink] = useState("");
   const [isCloneField, setIsCloneField] = useState(false);
   const [restartPolicy, setRestartPolicy] = useState("no");
+
+  const delay = 40;
 
   async function sendRepoLink() {
     if (!repoLink || !ports) {
