@@ -12,106 +12,118 @@ import (
 	"time"
 )
 
-type ServerStats struct {
-	CPUUsage string `json:"cpu_usage"`
-	CPUClockSpeed float64 `json:"cpuClockSpeed"`
-	RAMUsage string `json:"ram_usage"`
-	TotalStorage   float64 `json:"totalStorage"`
-	UsedStorage   float64 `json:"usedStorage"`
-}
-
-type CpuStat struct {
-	total uint64
-	idle  uint64
-}
-
 func HandleHardwareInfo(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Only GET requests are allowed", http.StatusMethodNotAllowed)
-		return
-	}
+    if r.Method != http.MethodGet {
+        http.Error(w, "Only GET requests are allowed", http.StatusMethodNotAllowed)
+        return
+    }
 
-	cpuUsage, err := getCPUUsage()
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error getting CPU usage: %s", err), http.StatusInternalServerError)
-		return
-	}
+    cpuUsages, err := getCPUUsage()
+    if err != nil {
+        http.Error(w, fmt.Sprintf("Error getting CPU usage: %s", err), http.StatusInternalServerError)
+        return
+    }
 
-	cpuClockSpeed, err := getCPUClockSpeed()
+    cpuClockSpeed, err := getCPUClockSpeed()
     if err != nil {
         http.Error(w, fmt.Sprintf("Error getting CPU clock speed: %s", err), http.StatusInternalServerError)
         return
     }
 
-	ramUsage, err := getRAMUsage()
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error getting RAM usage: %s", err), http.StatusInternalServerError)
-		return
-	}
+    ramUsage, err := getRAMUsage()
+    if err != nil {
+        http.Error(w, fmt.Sprintf("Error getting RAM usage: %s", err), http.StatusInternalServerError)
+        return
+    }
 
-	totalStorage, usedStorage, err := getTotalAndUsedStorage()
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error getting total storage: %s", err), http.StatusInternalServerError)
-		return
-	}
+    totalStorage, usedStorage, err := getTotalAndUsedStorage()
+    if err != nil {
+        http.Error(w, fmt.Sprintf("Error getting total storage: %s", err), http.StatusInternalServerError)
+        return
+    }
 
-	stats := ServerStats{
-		CPUUsage:      cpuUsage,
-		CPUClockSpeed: cpuClockSpeed,
-		RAMUsage:      ramUsage,
-		TotalStorage:  totalStorage,
-		UsedStorage:  usedStorage,
-	}
+    stats := ServerStats{
+        CPUUsage:      cpuUsages,
+        CPUClockSpeed: cpuClockSpeed,
+        RAMUsage:      ramUsage,
+        TotalStorage:  totalStorage,
+        UsedStorage:   usedStorage,
+    }
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(stats)
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(stats)
 }
 
-func getCPUUsage() (string, error) {
-	firstMeasure, err := readCPUStat()
-	if err != nil {
-		return "", err
-	}
-	time.Sleep(500 * time.Millisecond)
-	secondMeasure, err := readCPUStat()
-	if err != nil {
-		return "", err
-	}
+func getCPUUsage() ([]string, error) {
+    firstMeasures, err := readCPUStat()
+    if err != nil {
+        return nil, err
+    }
+    if len(firstMeasures) == 0 {
+        return nil, fmt.Errorf("no cpu data available")
+    }
 
-	totalDelta := secondMeasure.total - firstMeasure.total
-	idleDelta := secondMeasure.idle - firstMeasure.idle
-	cpuUsage := 100.0 * (float64(totalDelta) - float64(idleDelta)) / float64(totalDelta)
-	return fmt.Sprintf("%.2f%%", cpuUsage), nil
+    time.Sleep(500 * time.Millisecond)
+    secondMeasures, err := readCPUStat()
+    if err != nil {
+        return nil, err
+    }
+    if len(secondMeasures) == 0 {
+        return nil, fmt.Errorf("no cpu data available on second measure")
+    }
+
+    var cpuUsages []string
+    for i, firstMeasure := range firstMeasures {
+        if i >= len(secondMeasures) {
+            continue
+        }
+        secondMeasure := secondMeasures[i]
+        totalDelta := secondMeasure.total - firstMeasure.total
+        idleDelta := secondMeasure.idle - firstMeasure.idle
+        cpuUsage := 100.0 * (float64(totalDelta) - float64(idleDelta)) / float64(totalDelta)
+        cpuUsages = append(cpuUsages, fmt.Sprintf("CPU%s: %.2f%%", firstMeasure.coreID, cpuUsage))
+    }
+    return cpuUsages, nil
 }
 
-func readCPUStat() (CpuStat, error) {
-	data, err := os.ReadFile("/proc/stat")
-	if err != nil {
-		return CpuStat{}, err
-	}
 
-	lines := strings.Split(string(data), "\n")
-	for _, line := range lines {
-		fields := strings.Fields(line)
-		if fields[0] == "cpu" {
-			numFields := len(fields)
-			var total uint64
-			var idle uint64
-			for i := 1; i < numFields; i++ {
-				val, err := strconv.ParseUint(fields[i], 10, 64)
-				if err != nil {
-					return CpuStat{}, err
-				}
-				total += val
-				if i == 4 {
-					idle = val
-				}
-			}
-			return CpuStat{total: total, idle: idle}, nil
-		}
-	}
-	return CpuStat{}, fmt.Errorf("cpu info not found")
+func readCPUStat() ([]CpuStat, error) {
+    data, err := os.ReadFile("/proc/stat")
+    if err != nil {
+        return nil, err
+    }
+
+    lines := strings.Split(string(data), "\n")
+    var stats []CpuStat
+    for _, line := range lines {
+        fields := strings.Fields(line)
+        if len(fields) > 0 && strings.HasPrefix(fields[0], "cpu") {
+            numFields := len(fields)
+            if numFields < 5 {
+                continue
+            }
+            var total uint64
+            var idle uint64
+            for i := 1; i < numFields; i++ {
+                val, err := strconv.ParseUint(fields[i], 10, 64)
+                if err != nil {
+                    return nil, err
+                }
+                total += val
+                if i == 4 {
+                    idle = val
+                }
+            }
+            coreID := fields[0][3:]
+            stats = append(stats, CpuStat{coreID: coreID, total: total, idle: idle})
+        }
+    }
+    if len(stats) == 0 {
+        return nil, fmt.Errorf("no cpu core info found")
+    }
+    return stats, nil
 }
+
 
 func getCPUClockSpeed() (float64, error) {
     file, err := os.Open("/proc/cpuinfo")
