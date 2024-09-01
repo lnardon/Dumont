@@ -7,13 +7,14 @@ import Terminal from "../Terminal";
 import Logs from "../Logs";
 import { toast } from "react-toastify";
 import CloseBtn from "../CloseBtn";
+import { Port } from "../../types";
 
 interface Props {
   handleClose: () => void;
   containerName: string;
   containerImage: string;
   containerStatus: string;
-  containerPorts: any[];
+  containerPorts: Port[];
   containerId: string;
   containerNetwork: string;
   createdAt: number;

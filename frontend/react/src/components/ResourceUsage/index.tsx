@@ -1,13 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { ArrowBigUpDash, ArrowBigDownDash } from "lucide-react";
 import { apiHandler } from "../../utils/apiHandler";
 import styles from "./styles.module.css";
 import formatBytes from "../../utils/formatBytes";
 import CircleGraph from "./CircleGraph";
+import { ContainerStats } from "../../types";
 
 const ResourceUsage: React.FC<{ containerId: string }> = ({ containerId }) => {
-  const [data, setData] = useState<any>({});
+  const [data, setData] = useState<ContainerStats>({} as ContainerStats);
 
   function getInfo() {
     const response = apiHandler("/api/get_container_info", "POST", "", {

@@ -10,18 +10,7 @@ import Header from "../../components/Header";
 import HardwareInfo from "../../components/HardwareInfo";
 import CreateContainer from "../../components/CreateContainer";
 import CreateContainerGroup from "../../components/CreateContainerGroup";
-
-type ContainerInfo = {
-  Names: string;
-  Status: string;
-  Ports: any[];
-  Id: string;
-  Image: string;
-  Networks: string;
-  Size: string;
-  NetworkSettings?: any;
-  Created?: number;
-};
+import { ContainerInfo } from "../../types";
 
 const Dashboard: React.FC = () => {
   const [currentView, setCurrentView] = useState("containers");
@@ -129,7 +118,7 @@ const Dashboard: React.FC = () => {
             containerStatus={containerInfo.Status}
             containerPorts={containerInfo?.Ports}
             containerNetwork={Object.keys(
-              containerInfo.NetworkSettings.Networks
+              containerInfo?.NetworkSettings!.Networks
             ).join(", ")}
             containerId={containerInfo.Id}
             createdAt={containerInfo.Created || 0}
