@@ -1,14 +1,20 @@
-FROM node:latest as build-frontend
+FROM node:22.8.0-alpine3.19 AS build-frontend
 WORKDIR /usr/src/app
 COPY ./frontend/react .
 RUN npm install
 RUN npm run build
 
-FROM golang:latest as build-backend
+FROM golang:1.23.0-alpine3.19 AS build-backend
 WORKDIR /usr/src/app
+COPY go.mod go.sum ./
+RUN go mod download
 COPY . .
-COPY --from=build-frontend /usr/src/app/dist /usr/src/app/frontend/react/dist
 RUN go build -o main .
 
-EXPOSE 3322
+FROM alpine:3.19 AS runner
+WORKDIR /usr/src/app
+COPY --from=build-frontend /usr/src/app/dist /usr/src/app/frontend/react/dist
+COPY --from=build-backend /usr/src/app/main /usr/src/app/main
+
+EXPOSE 3323
 CMD ["./main"]
