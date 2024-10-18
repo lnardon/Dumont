@@ -1,4 +1,4 @@
-FROM node:22.0-alpine3.19 as base
+FROM node:23-alpine3.19 as base
 WORKDIR /app
 COPY ./frontend/react/package*.json ./
 RUN npm install
