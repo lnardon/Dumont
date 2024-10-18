@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-    http.Handle("/", http.FileServer(http.Dir("./frontend/react/dist")))
+    http.Handle("/", http.FileServer(http.Dir("./dist")))
 	
 	// Auth
 	http.HandleFunc("/api/login", AuthModule.Login)
@@ -32,7 +32,7 @@ func main() {
 	http.HandleFunc("/api/clone_repo", AuthModule.VerifyJWT(ContainerModule.HandleClone))
 
 
-	const PORT = ":3323"
+	const PORT = ":3322"
 	fmt.Println("Server started on port " , PORT)
 	err := http.ListenAndServe(PORT, nil)
 	if err != nil {

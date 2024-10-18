@@ -1,10 +1,11 @@
-FROM node:22.8.0-alpine3.19 AS build-frontend
-WORKDIR /usr/src/app
+FROM node:22.0-alpine3.19 as base
+WORKDIR /app
+COPY ./frontend/react/package*.json ./
+RUN npm ci
+
+FROM base as build-frontend
+WORKDIR /app
 COPY ./frontend/react .
-RUN npm config set https-proxy http://cloud.different.tech:80
-RUN npm config set proxy http://cloud.different.tech:80
-RUN npm install
-RUN npm install typescript --save-dev
 RUN npm run build
 
 FROM golang:1.23.0-alpine3.19 AS build-backend
@@ -16,7 +17,7 @@ RUN go build -o main .
 
 FROM alpine:3.19 AS runner
 WORKDIR /usr/src/app
-COPY --from=build-frontend /usr/src/app/dist /usr/src/app/frontend/react/dist
+COPY --from=build-frontend /app/dist /usr/src/app/dist
 COPY --from=build-backend /usr/src/app/main /usr/src/app/main
 
 EXPOSE 3323
