@@ -1,10 +1,7 @@
-FROM node:23-alpine3.19 as base
+FROM node:22.0.0-alpine3.19 as build-frontend
 WORKDIR /app
 COPY ./frontend/react/package*.json ./
 RUN npm install
-
-FROM base as build-frontend
-WORKDIR /app
 COPY ./frontend/react .
 RUN npm run build
 
