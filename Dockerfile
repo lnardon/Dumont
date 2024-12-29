@@ -16,6 +16,8 @@ FROM alpine:3.19 AS runner
 WORKDIR /usr/src/app
 COPY --from=build-frontend /app/dist /usr/src/app/dist
 COPY --from=build-backend /usr/src/app/main /usr/src/app/main
+RUN apk add --no-cache docker-cli docker-cli-compose
 
 EXPOSE 3323
 CMD ["./main"]
+
