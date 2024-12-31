@@ -24,6 +24,14 @@ const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
     onLogin();
   }
 
+  const handleKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (event.key === 'Enter') {
+      handleLogin();
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -44,6 +52,7 @@ const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
               type="password"
               placeholder="Password"
               onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={handleKeyDown}
               value={password}
               className={styles.input}
             />
