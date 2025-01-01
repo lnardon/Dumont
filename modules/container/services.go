@@ -21,95 +21,112 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-
 func StartContainer(w http.ResponseWriter, r *http.Request) {
-    var req CreateRequest
-    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-        http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
-        return
-    }
-    defer r.Body.Close()
+	var req CreateRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
 
-    cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.42"))
-    if err != nil {
-        http.Error(w, fmt.Sprintf("Error creating Docker client: %s", err), http.StatusInternalServerError)
-        return
-    }
-    defer cli.Close()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.42"))
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error creating Docker client: %s", err), http.StatusInternalServerError)
+		return
+	}
+	defer cli.Close()
 
-    ctx := context.Background()
-    portBindings := nat.PortMap{}
-    if req.Ports != "" {
-        hostPort := strings.Split(req.Ports, ":")[0]
-        containerPort := strings.Split(req.Ports, ":")[1] + "/tcp"
-        portBindings[nat.Port(containerPort)] = []nat.PortBinding{{HostPort: hostPort}}
-    }
+	ctx := context.Background()
 
-    restartPolicy := container.RestartPolicy{}
-    if req.RestartPolicy != "" {
-        restartPolicy.Name = req.RestartPolicy
-    }
+	networkName := req.Network
+	if networkName == "" {
+		networkName = req.ContainerName + "_network"
+		_, err := cli.NetworkCreate(ctx, networkName, types.NetworkCreate{
+			CheckDuplicate: true,
+		})
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error creating Docker network: %s", err), http.StatusInternalServerError)
+			return
+		}
+	}
 
-    validEnv := make([]string, 0)
-    for _, env := range req.Variables {
-        if strings.Contains(env, "=") {
-            validEnv = append(validEnv, env)
-        }
-    }
+	portBindings := nat.PortMap{}
+	if req.Ports != "" {
+		hostPort := strings.Split(req.Ports, ":")[0]
+		containerPort := strings.Split(req.Ports, ":")[1] + "/tcp"
+		portBindings[nat.Port(containerPort)] = []nat.PortBinding{{HostPort: hostPort}}
+	}
 
-    validVolumes := make([]string, 0)
-    for _, volume := range req.Volumes {
-        if volume != "" {
-            validVolumes = append(validVolumes, volume)
-        }
-    }
+	restartPolicy := container.RestartPolicy{}
+	if req.RestartPolicy != "" {
+		restartPolicy.Name = req.RestartPolicy
+	}
 
-    resp, err := cli.ContainerCreate(ctx, &container.Config{
-        Image: req.Image,
-        Env:  validEnv,
-    }, &container.HostConfig{
-        PortBindings: portBindings,
-        Binds:        validVolumes,
-        RestartPolicy: restartPolicy,
-    }, nil, nil, req.ContainerName)
+	validEnv := make([]string, 0)
+	for _, env := range req.Variables {
+		if strings.Contains(env, "=") {
+			validEnv = append(validEnv, env)
+		}
+	}
 
-    if err != nil {
-        if strings.Contains(err.Error(), "No such image") {
-            out, pullErr := cli.ImagePull(ctx, req.Image, types.ImagePullOptions{})
-            if pullErr != nil {
-                http.Error(w, fmt.Sprintf("Error pulling container image: %s", pullErr), http.StatusInternalServerError)
-                return
-            }
-            io.Copy(os.Stdout, out)
-            out.Close()
+	validVolumes := make([]string, 0)
+	for _, volume := range req.Volumes {
+		if volume != "" {
+			validVolumes = append(validVolumes, volume)
+		}
+	}
 
-            resp, err = cli.ContainerCreate(ctx, &container.Config{
-                Image: req.Image,
-                Env:  validEnv,
-            }, &container.HostConfig{
-                PortBindings: portBindings,
-                Binds:        validVolumes,
-                RestartPolicy: restartPolicy,
-            }, nil, nil, req.ContainerName)
-            if err != nil {
-                http.Error(w, fmt.Sprintf("Error creating container after pulling image: %s", err), http.StatusInternalServerError)
-                return
-            }
-        } else {
-            http.Error(w, fmt.Sprintf("Error creating container: %s", err), http.StatusInternalServerError)
-            return
-        }
-    }
+	resp, err := cli.ContainerCreate(ctx, &container.Config{
+		Image: req.Image,
+		Env:   validEnv,
+	}, &container.HostConfig{
+		PortBindings:  portBindings,
+		Binds:         validVolumes,
+		RestartPolicy: restartPolicy,
+		NetworkMode:   container.NetworkMode(networkName),
+	}, nil, nil, req.ContainerName)
 
-    if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
-        http.Error(w, fmt.Sprintf("Error starting container: %s", err), http.StatusInternalServerError)
-        return
-    }
+	if err != nil {
+		if strings.Contains(err.Error(), "No such image") {
+			out, pullErr := cli.ImagePull(ctx, req.Image, types.ImagePullOptions{})
+			if pullErr != nil {
+				http.Error(w, fmt.Sprintf("Error pulling container image: %s", pullErr), http.StatusInternalServerError)
+				return
+			}
+			io.Copy(os.Stdout, out)
+			out.Close()
 
-    w.WriteHeader(http.StatusCreated)
-    fmt.Fprintf(w, "Container started successfully: %s\n", resp.ID)
+			resp, err = cli.ContainerCreate(ctx, &container.Config{
+				Image: req.Image,
+				Env:   validEnv,
+			}, &container.HostConfig{
+				PortBindings:  portBindings,
+				Binds:         validVolumes,
+				RestartPolicy: restartPolicy,
+			}, nil, nil, req.ContainerName)
+			if err != nil {
+				http.Error(w, fmt.Sprintf("Error creating container after pulling image: %s", err), http.StatusInternalServerError)
+				return
+			}
+		} else {
+			http.Error(w, fmt.Sprintf("Error creating container: %s", err), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if err := cli.NetworkConnect(ctx, networkName, resp.ID, nil); err != nil {
+		http.Error(w, fmt.Sprintf("Error connecting container to network: %s", err), http.StatusInternalServerError)
+		return
+	}
+
+	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+		http.Error(w, fmt.Sprintf("Error starting container: %s", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "Container started successfully: %s\n", resp.ID)
 }
-
 
 func StopContainer(w http.ResponseWriter, r *http.Request) {
 	var req CloneRequest
@@ -128,8 +145,8 @@ func StopContainer(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 	if err := cli.ContainerStop(ctx, req.ContainerId, container.StopOptions{
-			Timeout: nil,
-			Signal: "SIGKILL",
+		Timeout: nil,
+		Signal:  "SIGKILL",
 	}); err != nil {
 		http.Error(w, fmt.Sprintf("Error stopping container: %s", err), http.StatusInternalServerError)
 		return
@@ -175,7 +192,7 @@ func dockerBuild(imageName, context string) error {
 }
 
 func dockerRun(imageName string, port string) error {
-    cmd := exec.Command("docker", "run", "-d", "-p", port, imageName)
+	cmd := exec.Command("docker", "run", "-d", "-p", port, imageName)
 	return cmd.Run()
 }
 
@@ -318,7 +335,7 @@ func HandleDeleteContainer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cli, err := client.NewClientWithOpts(client.FromEnv,client.WithVersion("1.42"))
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.42"))
 	if err != nil {
 		fmt.Println("Error creating sdk client: ", err)
 	}
@@ -327,7 +344,7 @@ func HandleDeleteContainer(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	err = cli.ContainerStop(ctx, req.ContainerId, container.StopOptions{
 		Timeout: nil,
-		Signal: "SIGKILL",
+		Signal:  "SIGKILL",
 	})
 	err = cli.ContainerRemove(ctx, req.ContainerId, types.ContainerRemoveOptions{})
 	if err != nil {
@@ -339,197 +356,196 @@ func HandleDeleteContainer(w http.ResponseWriter, r *http.Request) {
 }
 
 var upgrader = websocket.Upgrader{
-    ReadBufferSize:  1024,
-    WriteBufferSize: 1024,
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
 }
 
 func TerminalHandler(w http.ResponseWriter, r *http.Request) {
-    conn, err := upgrader.Upgrade(w, r, nil)
-    if err != nil {
-        log.Printf("WebSocket upgrade error: %v", err)
-        return
-    }
-    defer conn.Close()
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Printf("WebSocket upgrade error: %v", err)
+		return
+	}
+	defer conn.Close()
 
-    _, firstMsg, err := conn.ReadMessage()
-    if err != nil {
-        log.Printf("read container ID from WebSocket error: %v", err)
-        return
-    }
+	_, firstMsg, err := conn.ReadMessage()
+	if err != nil {
+		log.Printf("read container ID from WebSocket error: %v", err)
+		return
+	}
 
-    messageParts := strings.SplitN(string(firstMsg), ":", 2)
-    if len(messageParts) != 2 || messageParts[0] != "container_id" {
-        log.Printf("invalid container ID format")
-        return
-    }
-    container_id := messageParts[1]
+	messageParts := strings.SplitN(string(firstMsg), ":", 2)
+	if len(messageParts) != 2 || messageParts[0] != "container_id" {
+		log.Printf("invalid container ID format")
+		return
+	}
+	container_id := messageParts[1]
 
-    cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-    if err != nil {
-        log.Printf("Docker client error: %v", err)
-        return
-    }
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		log.Printf("Docker client error: %v", err)
+		return
+	}
 
-    attachOptions := types.ContainerAttachOptions{
-        Stream: true,
-        Stdin:  true,
-        Stdout: true,
-        Stderr: true,
-    }
-    hijackedResponse, err := cli.ContainerAttach(context.Background(), container_id, attachOptions)
-    if err != nil {
-        log.Printf("Container attach error: %v", err)
-        return
-    }
-    defer hijackedResponse.Close()
+	attachOptions := types.ContainerAttachOptions{
+		Stream: true,
+		Stdin:  true,
+		Stdout: true,
+		Stderr: true,
+	}
+	hijackedResponse, err := cli.ContainerAttach(context.Background(), container_id, attachOptions)
+	if err != nil {
+		log.Printf("Container attach error: %v", err)
+		return
+	}
+	defer hijackedResponse.Close()
 
-    ctx, cancel := context.WithCancel(context.Background())
-    defer cancel()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-    go func() {
-        defer cancel()
-        for {
-            _, message, err := conn.ReadMessage()
-            if err != nil {
-                log.Printf("read from WebSocket error: %v", err)
-                return
-            }
+	go func() {
+		defer cancel()
+		for {
+			_, message, err := conn.ReadMessage()
+			if err != nil {
+				log.Printf("read from WebSocket error: %v", err)
+				return
+			}
 
-            output, err := executeCommandInDocker(container_id, string(message))
-            if err != nil {
-                log.Printf("execute command error: %v", err)
-                continue
-            }
-            err = conn.WriteMessage(websocket.BinaryMessage, []byte(output))
-            if err != nil {
-                log.Printf("write to WebSocket error: %v", err)
-                return
-            }
-        }
-    }()
+			output, err := executeCommandInDocker(container_id, string(message))
+			if err != nil {
+				log.Printf("execute command error: %v", err)
+				continue
+			}
+			err = conn.WriteMessage(websocket.BinaryMessage, []byte(output))
+			if err != nil {
+				log.Printf("write to WebSocket error: %v", err)
+				return
+			}
+		}
+	}()
 
+	go func() {
+		defer cancel()
+		buffer := make([]byte, 4096)
+		for {
+			n, err := hijackedResponse.Reader.Read(buffer)
+			if err != nil {
+				log.Printf("read from Docker error: %v", err)
+				return
+			}
+			err = conn.WriteMessage(websocket.BinaryMessage, buffer[:n])
+			if err != nil {
+				log.Printf("write to WebSocket error: %v", err)
+				return
+			}
+		}
+	}()
 
-    go func() {
-        defer cancel()
-        buffer := make([]byte, 4096)
-        for {
-            n, err := hijackedResponse.Reader.Read(buffer)
-            if err != nil {
-                log.Printf("read from Docker error: %v", err)
-                return
-            }
-            err = conn.WriteMessage(websocket.BinaryMessage, buffer[:n])
-            if err != nil {
-                log.Printf("write to WebSocket error: %v", err)
-                return
-            }
-        }
-    }()
-
-    <-ctx.Done()
+	<-ctx.Done()
 }
 
 func executeCommandInDocker(containerID, command string) (string, error) {
-    ctx := context.Background()
-    cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-    if err != nil {
-        return "", err
-    }
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return "", err
+	}
 
-    cmdParts := strings.Fields(command)
-    if len(cmdParts) == 0 {
-        return "", fmt.Errorf("invalid command")
-    }
+	cmdParts := strings.Fields(command)
+	if len(cmdParts) == 0 {
+		return "", fmt.Errorf("invalid command")
+	}
 
-    execConfig := types.ExecConfig{
-        Cmd:          cmdParts,
-        AttachStdout: true,
-        AttachStderr: true,
-        AttachStdin:  false,
-        Tty:          false,
-    }
+	execConfig := types.ExecConfig{
+		Cmd:          cmdParts,
+		AttachStdout: true,
+		AttachStderr: true,
+		AttachStdin:  false,
+		Tty:          false,
+	}
 
-    execID, err := cli.ContainerExecCreate(ctx, containerID, execConfig)
-    if err != nil {
-        return "", err
-    }
+	execID, err := cli.ContainerExecCreate(ctx, containerID, execConfig)
+	if err != nil {
+		return "", err
+	}
 
-    execAttachConfig := types.ExecStartCheck{Tty: false}
-    execAttachResponse, err := cli.ContainerExecAttach(ctx, execID.ID, execAttachConfig)
-    if err != nil {
-        return "", err
-    }
-    defer execAttachResponse.Close()
+	execAttachConfig := types.ExecStartCheck{Tty: false}
+	execAttachResponse, err := cli.ContainerExecAttach(ctx, execID.ID, execAttachConfig)
+	if err != nil {
+		return "", err
+	}
+	defer execAttachResponse.Close()
 
-    var outputBuffer bytes.Buffer
-    _, err = stdcopy.StdCopy(&outputBuffer, &outputBuffer, execAttachResponse.Reader)
-    if err != nil {
-        return "", err
-    }
+	var outputBuffer bytes.Buffer
+	_, err = stdcopy.StdCopy(&outputBuffer, &outputBuffer, execAttachResponse.Reader)
+	if err != nil {
+		return "", err
+	}
 
-    return outputBuffer.String(), nil
+	return outputBuffer.String(), nil
 }
 
 func LogsHandler(w http.ResponseWriter, r *http.Request) {
-    conn, err := upgrader.Upgrade(w, r, nil)
-    if err != nil {
-        log.Printf("WebSocket upgrade error: %v", err)
-        return
-    }
-    defer conn.Close()
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Printf("WebSocket upgrade error: %v", err)
+		return
+	}
+	defer conn.Close()
 
-    _, firstMsg, err := conn.ReadMessage()
-    if err != nil {
-        log.Printf("read container ID from WebSocket error: %v", err)
-        return
-    }
+	_, firstMsg, err := conn.ReadMessage()
+	if err != nil {
+		log.Printf("read container ID from WebSocket error: %v", err)
+		return
+	}
 
-    messageParts := strings.SplitN(string(firstMsg), ":", 2)
-    if len(messageParts) != 2 || messageParts[0] != "container_id" {
-        log.Printf("invalid container ID format")
-        return
-    }
-    containerID := messageParts[1]
+	messageParts := strings.SplitN(string(firstMsg), ":", 2)
+	if len(messageParts) != 2 || messageParts[0] != "container_id" {
+		log.Printf("invalid container ID format")
+		return
+	}
+	containerID := messageParts[1]
 
-    cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-    if err != nil {
-        log.Printf("Docker client error: %v", err)
-        return
-    }
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		log.Printf("Docker client error: %v", err)
+		return
+	}
 
-    logsOptions := types.ContainerLogsOptions{
-        ShowStdout: true,
-        ShowStderr: true,
-        Follow:     true,
-        Tail:       "all",
-    }
+	logsOptions := types.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Follow:     true,
+		Tail:       "all",
+	}
 
-    logStream, err := cli.ContainerLogs(context.Background(), containerID, logsOptions)
-    if err != nil {
-        log.Printf("Container logs error: %v", err)
-        return
-    }
-    defer logStream.Close()
+	logStream, err := cli.ContainerLogs(context.Background(), containerID, logsOptions)
+	if err != nil {
+		log.Printf("Container logs error: %v", err)
+		return
+	}
+	defer logStream.Close()
 
-    ctx, cancel := context.WithCancel(context.Background())
-    defer cancel()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-    go func() {
-        defer cancel()
-        buffer := make([]byte, 4096)
-        for {
-            n, err := logStream.Read(buffer)
-            if err != nil {
-                log.Printf("read from Docker logs error: %v", err)
-                return
-            }
-            err = conn.WriteMessage(websocket.BinaryMessage, buffer[:n])
-            if err != nil {
-                log.Printf("write to WebSocket error: %v", err)
-                return
-            }
-        }
-    }()
+	go func() {
+		defer cancel()
+		buffer := make([]byte, 4096)
+		for {
+			n, err := logStream.Read(buffer)
+			if err != nil {
+				log.Printf("read from Docker logs error: %v", err)
+				return
+			}
+			err = conn.WriteMessage(websocket.BinaryMessage, buffer[:n])
+			if err != nil {
+				log.Printf("write to WebSocket error: %v", err)
+				return
+			}
+		}
+	}()
 
-    <-ctx.Done()
+	<-ctx.Done()
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./styles.module.css";
 import LoaderGif from "/assets/loader.gif";
 import { apiHandler } from "../../utils/apiHandler";
@@ -19,6 +19,13 @@ function CreateContainer({ handleClose }: Props) {
   const [repoLink, setRepoLink] = useState("");
   const [isCloneField, setIsCloneField] = useState(false);
   const [restartPolicy, setRestartPolicy] = useState("no");
+  const [network, setNetwork] = useState("")
+  const [networks, setNetworks] = useState([
+    {
+      Id: 1,
+      Name: "Bridge"
+    }
+  ])
 
   const delay = 40;
 
@@ -58,6 +65,7 @@ function CreateContainer({ handleClose }: Props) {
         volumes: volumes.trim().split(/\s*;\s*/),
         restart_policy: restartPolicy,
         variables: variables.trim().split(/\s*;\s*/),
+        network: network
       }),
       {
         success: "Container created! 🎉",
@@ -70,6 +78,21 @@ function CreateContainer({ handleClose }: Props) {
       setIsLoading(false);
     }
   }
+
+  useEffect(() => {
+   (async () => {
+    const response = await toast.promise(
+      apiHandler("/api/get_networks", "GET", "", {}),
+      {
+        error: "Error getting networks 😢",
+      }
+    );
+
+    response.json().then(parsed => {
+      setNetworks(parsed)
+    })
+   })()
+  }, [])
 
   return (
     <div className={styles.container}>
@@ -176,7 +199,28 @@ function CreateContainer({ handleClose }: Props) {
                 </option>
               </select>
             </div>
+            <div
+              className={styles.field}
+              style={{ animationDelay: 6 * delay + "ms" }}
+            >
+              <label className={styles.name}>Network:</label>
+              <select
+                className={styles.select}
+                onChange={(e) => setNetwork(e.target.value)}
+              >
+                {
+                  networks.map(net => {
+                    return(
+                      <option className={styles.option} value={net.Name}>
+                          {net.Name}
+                      </option>
+                    )
+                  })
+                }
+              </select>
+            </div>
           </div>
+
           <div
             className={styles.variables}
             style={{ animationDelay: 6 * delay + "ms" }}
@@ -190,6 +234,7 @@ function CreateContainer({ handleClose }: Props) {
               placeholder="DATABASE_URL=postgres://user:pass@localhost:5432/db ; PORT=3000 (Optional)"
             />
           </div>
+
           <div className={styles.buttons}>
             <button
               onClick={() => setIsCloneField((old) => !old)}

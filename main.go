@@ -11,8 +11,8 @@ import (
 )
 
 func main() {
-    http.Handle("/", http.FileServer(http.Dir("./dist")))
-	
+	http.Handle("/", http.FileServer(http.Dir("./dist")))
+
 	// Auth
 	http.HandleFunc("/api/login", AuthModule.Login)
 
@@ -30,10 +30,10 @@ func main() {
 	http.HandleFunc("/api/save_and_deploy_group", AuthModule.VerifyJWT(GroupModule.HandleSaveAndDeployGroup))
 	http.HandleFunc("/api/get_hardware_info", AuthModule.VerifyJWT(HardwareModule.HandleHardwareInfo))
 	http.HandleFunc("/api/clone_repo", AuthModule.VerifyJWT(ContainerModule.HandleClone))
-
+	http.HandleFunc("/api/get_networks", AuthModule.VerifyJWT(HardwareModule.HandleGetNetworks))
 
 	const PORT = ":3322"
-	fmt.Println("Server started on port " , PORT)
+	fmt.Println("Server started on port ", PORT)
 	err := http.ListenAndServe(PORT, nil)
 	if err != nil {
 		fmt.Println("Error:", err)
