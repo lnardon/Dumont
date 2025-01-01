@@ -52,13 +52,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
+  gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
 .progressBar {
+  position: relative;
+  min-width: 4rem;
   height: 20px;
   background-color: #363636;
-  border-radius: 5px;
+  border-radius: 0.25rem;
   overflow: hidden;
   margin-bottom: 0.25rem;
   display: flex;
@@ -73,6 +76,16 @@
   height: 100%;
   background-color: antiquewhite;
   border-radius: 0.25rem;
+}
+
+.coreLabel{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: rgb(101, 101, 101);
 }
 
 @keyframes blink {

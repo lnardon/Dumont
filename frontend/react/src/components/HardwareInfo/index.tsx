@@ -74,7 +74,11 @@ const HardwareInfoComponent: React.FC = () => {
                       width: core.split(":")[1],
                       transition: "width 0.3s ease",
                     }}
-                  ></div>
+                  >
+                    <span className={styles.coreLabel}>
+                    {index + 1}
+                    </span>
+                  </div>
                 </div>
               ))}
           </div>
