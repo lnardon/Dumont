@@ -11,8 +11,7 @@ import (
 	"os/exec"
 )
 
-
-func HandleSaveAndDeployGroup(w http.ResponseWriter, r *http.Request){
+func HandleSaveAndDeployGroup(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
@@ -48,7 +47,7 @@ func HandleSaveAndDeployGroup(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	cmd := exec.Command("docker", "compose", "-f", fmt.Sprintf("./groups/%s/%s.yml", req.Name, req.Name), "up", "-d")
+	cmd := exec.Command("docker-compose", "-f", fmt.Sprintf("./groups/%s/%s.yml", req.Name, req.Name), "up", "-d")
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer
@@ -57,7 +56,7 @@ func HandleSaveAndDeployGroup(w http.ResponseWriter, r *http.Request){
 
 	err = cmd.Run()
 	if err != nil {
-		log.Printf("||> Run failed with %s\n", stderr.String())
+		log.Printf("||> Run failed with %s\n %s \n %s", stderr.String(), out.String(), err)
 		http.Error(w, "Error running docker-compose: "+stderr.String(), http.StatusInternalServerError)
 		return
 	}
