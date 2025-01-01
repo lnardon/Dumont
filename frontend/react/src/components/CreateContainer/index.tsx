@@ -19,7 +19,7 @@ function CreateContainer({ handleClose }: Props) {
   const [repoLink, setRepoLink] = useState("");
   const [isCloneField, setIsCloneField] = useState(false);
   const [restartPolicy, setRestartPolicy] = useState("no");
-  const [network, setNetwork] = useState("")
+  const [network, setNetwork] = useState("none")
   const [networks, setNetworks] = useState([
     {
       Id: 1,
@@ -207,6 +207,8 @@ function CreateContainer({ handleClose }: Props) {
               <select
                 className={styles.select}
                 onChange={(e) => setNetwork(e.target.value)}
+                defaultValue={"none"}
+                value={network}
               >
                 {
                   networks.map(net => {
