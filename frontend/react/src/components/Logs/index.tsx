@@ -28,9 +28,7 @@ function Logs({
       };
 
       ws.current.onmessage = (event) => {
-        const message = new Uint8Array(event.data);
-        const str = new TextDecoder("utf-8").decode(message);
-        setData((oldString) => oldString + "|new_line|" + str);
+        setData((oldString) => oldString + "|new_line|" + event.data);
       };
     }, 750);
     return () => {
