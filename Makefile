@@ -1,4 +1,4 @@
-FRONTEND_DIR=./frontend/react
+FRONTEND_DIR=./frontend
 SERVER_FILES=main.go
 PORT=3322
 

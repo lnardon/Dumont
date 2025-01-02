@@ -11,9 +11,7 @@ import (
 )
 
 func main() {
-	http.Handle("/", http.FileServer(http.Dir("./dist")))
-
-	// Auth
+	http.Handle("/", http.FileServer(http.Dir("./frontend/dist")))
 	http.HandleFunc("/api/login", AuthModule.Login)
 
 	// Containers
