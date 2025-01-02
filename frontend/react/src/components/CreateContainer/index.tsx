@@ -57,26 +57,24 @@ function CreateContainer({ handleClose }: Props) {
       return;
     }
 
-    const response = await toast.promise(
-      apiHandler("/api/create_container", "POST", "", {
-        container_name: containerName.replace(" ", ""),
-        ports: ports,
-        image: imageName,
-        volumes: volumes.trim().split(/\s*;\s*/),
-        restart_policy: restartPolicy,
-        variables: variables.trim().split(/\s*;\s*/),
-        network: network
-      }),
-      {
-        success: "Container created! 🎉",
-        error: "Error creating container 😢",
+    apiHandler("/api/create_container", "POST", "", {
+      container_name: containerName.replace(" ", ""),
+      ports: ports,
+      image: imageName,
+      volumes: volumes.trim().split(/\s*;\s*/),
+      restart_policy: restartPolicy,
+      variables: variables.trim().split(/\s*;\s*/),
+      network: network
+    }).then(res => {
+      if(res.ok){
+        toast.success("Container created!")
+        setIsLoading(false)
+        handleClose()
+      } else {
+        toast.error("Error creating container.")
+        setIsLoading(false)
       }
-    );
-
-    if (response.status === 201 || response.status === 200) {
-      handleClose();
-      setIsLoading(false);
-    }
+    })
   }
 
   useEffect(() => {
