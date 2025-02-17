@@ -69,6 +69,10 @@ const Dashboard: React.FC = () => {
                     easing="ease"
                     transitionOnlyDifferentLetters={true}
                     animationDuration={600}
+                    style={{
+                      display: "flex",
+                      alignItems: "center"
+                    }}
                   />
                 </div>
                 <div className={styles.stoppedContainers}>
@@ -84,6 +88,10 @@ const Dashboard: React.FC = () => {
                     easing="ease"
                     transitionOnlyDifferentLetters={true}
                     animationDuration={600}
+                    style={{
+                      display: "flex",
+                      alignItems: "center"
+                    }}
                   />
                 </div>
               </div>
