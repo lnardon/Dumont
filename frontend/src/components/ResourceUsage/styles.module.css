@@ -1,6 +1,6 @@
 .container {
   display: flex;
-  align-items: start;
+  align-items: stretch;
   border-radius: 0.5rem;
   width: 100%;
   flex-wrap: wrap;
