@@ -6,6 +6,7 @@
   border-radius: 0.5rem;
   background: rgb(15, 113, 226);
   width: 100%;
+  height: 100%;
   padding: 1rem;
   animation: popupContainer 0.9s cubic-bezier(0.175, 0.885, 0.41, 1.25);
 }
@@ -76,20 +77,29 @@
   box-shadow: 0rem 0rem 1rem 0.125rem rgba(23, 23, 23, 0.2);
 }
 
-.loading {
+.loaderContainer {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
   height: 100%;
-  background-color: rgb(13, 13, 13);
+  flex-direction: column;
+  gap: 1rem;
+  background-color: #090909;
+  border-radius: 0.5rem;
+  padding: 1rem;
 }
 
 .loader {
-  height: 26rem;
-  max-width: 100%;
-  border-radius: 1rem;
+  width: 11rem;
   filter: invert(1);
+}
+
+.loadingText {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: antiquewhite;
+  margin-bottom: 0.25rem;
 }
 
 @keyframes popupContainer {

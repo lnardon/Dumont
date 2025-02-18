@@ -5,6 +5,7 @@ import styles from "./styles.module.css";
 import { toast } from "react-toastify";
 import Editor from "react-simple-code-editor";
 import { highlight, languages } from "prismjs";
+import LoaderGif from "/assets/loader.gif";
 import "prismjs/components/prism-yaml";
 import "./theme.css";
 
@@ -67,12 +68,9 @@ services:
           </div>
         </>
       ) : (
-        <div className={styles.loading}>
-          <img
-            src="/assets/loader.gif"
-            alt="Loader"
-            className={styles.loader}
-          />
+        <div className={styles.loaderContainer}>
+          <h2 className={styles.loadingText}>Creating container group</h2>
+          <img className={styles.loader} src={LoaderGif} alt="Loader" />
         </div>
       )}
     </div>
