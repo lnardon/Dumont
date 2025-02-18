@@ -45,7 +45,10 @@ function CreateContainer({ handleClose }: Props) {
     if (response.status === 201 || response.status === 200) {
       toast.success("Container created! 🎉");
     } else {
-      toast.error("Error creating container 😢");
+      toast.error("Error creating container 😢! Check your browser's console for the error message.");
+      response.text().then((data) => {
+        console.log(data);
+      });
     }
   }
 

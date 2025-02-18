@@ -34,7 +34,10 @@ services:
         toast.success("Group saved and deployed!");
         handleClose();
       } else {
-        toast.error("Error saving and deploying group 😢");
+        toast.error("Error saving and deploying group 😢! Check your browser's console for the error message.");
+        response.text().then((data) => {
+          console.log(data);
+        });
       }
       setIsLoading(false);
     });
