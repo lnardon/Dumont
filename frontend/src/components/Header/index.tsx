@@ -3,6 +3,7 @@ import AnimatedText from "animated-text-letters";
 import "animated-text-letters/index.css";
 import styles from "./styles.module.css";
 import { Boxes, Container, Plus } from "lucide-react";
+import ReactDOM from "react-dom";
 
 interface HeaderProps {
   handleCreate: React.Dispatch<React.SetStateAction<string>>;
@@ -11,6 +12,7 @@ interface HeaderProps {
 export default function Header({ handleCreate }: HeaderProps) {
   const [time, setTime] = useState<string>("");
   const [popupVisible, setPopupVisible] = useState<boolean>(false);
+  const [popupPosition, setPopupPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
   const iconRef = useRef<SVGSVGElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -32,6 +34,18 @@ export default function Header({ handleCreate }: HeaderProps) {
       const time = getCurrentTime();
       setTime(time);
     }, 1000);
+
+    window.addEventListener("resize", () => {
+      const buttonPosition = createButtonRef.current?.getBoundingClientRect();
+      const popupWidth = popupRef.current?.getBoundingClientRect().width || 0
+      setPopupPosition(buttonPosition
+        ? {
+            top: buttonPosition.top + buttonPosition.height,
+            left: buttonPosition.left - popupWidth + buttonPosition.width,
+          }
+        : { top: 0, left: 0 })
+    });
+
     return () => clearInterval(interval);
   }, []);
 
@@ -57,6 +71,14 @@ export default function Header({ handleCreate }: HeaderProps) {
         "0.25rem 0.25rem 0rem 0rem"
       );
       createButtonRef.current?.blur();
+      const buttonPosition = createButtonRef.current?.getBoundingClientRect();
+      const popupWidth = popupRef.current?.getBoundingClientRect().width || 0
+      setPopupPosition(buttonPosition
+        ? {
+            top: buttonPosition.top + buttonPosition.height,
+            left: buttonPosition.left - popupWidth + buttonPosition.width,
+          }
+        : { top: 0, left: 0 })
     } else {
       iconRef.current?.style.setProperty("transform", "rotate(0deg)");
       iconRef.current?.style.setProperty("color", "black");
@@ -108,42 +130,41 @@ export default function Header({ handleCreate }: HeaderProps) {
         />
       </button>
 
-      {popupVisible && (
-        <div className={styles.bg}>
-          <div
-            className={styles.popup}
-            ref={popupRef}
-            style={{
-              top:
-                createButtonRef.current!.offsetTop +
-                createButtonRef.current!.offsetHeight +
-                16,
-              left: createButtonRef.current!.getBoundingClientRect().left - 169,
-            }}
-          >
-            <button
-              className={styles.btn}
-              onClick={() => handleCreate("createContainer")}
+      {popupVisible &&
+        ReactDOM.createPortal(
+          <div className={styles.bg}>
+            <div
+              className={styles.popup}
+              ref={popupRef}
               style={{
-                background: "#646cff",
+                top: popupPosition.top,
+                left: popupPosition.left,
               }}
             >
-              <Container strokeWidth={1.5} />
-              Container
-            </button>
-            <button
-              className={styles.btn}
-              onClick={() => handleCreate("createContainerGroup")}
-              style={{
-                background: "rgb(15, 113, 226)",
-              }}
-            >
-              <Boxes strokeWidth={1.5} />
-              Container Group
-            </button>
-          </div>
-        </div>
-      )}
+              <button
+                className={styles.btn}
+                onClick={() => handleCreate("createContainer")}
+                style={{
+                  background: "#646cff",
+                }}
+              >
+                <Container strokeWidth={1.5} />
+                Container
+              </button>
+              <button
+                className={styles.btn}
+                onClick={() => handleCreate("createContainerGroup")}
+                style={{
+                  background: "rgb(15, 113, 226)",
+                }}
+              >
+                <Boxes strokeWidth={1.5} />
+                Container Group
+              </button>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
