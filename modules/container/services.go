@@ -542,7 +542,7 @@ func LogsHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			// This piece of code is to remove the docker logs header info that comes on each log message from the API.
+			// NOTE: This piece of code is to remove the docker logs header info that comes on each log message from the API and displays as empty chars of the frontend.
 			logLength := int(header[7]) | int(header[6])<<8 | int(header[5])<<16 | int(header[4])<<24
 			logMessage := make([]byte, logLength)
 
