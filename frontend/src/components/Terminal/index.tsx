@@ -86,7 +86,7 @@ function Terminal({
             if (idx > 0) {
               return (
                 <div>
-                  <p className={styles.terminalHeader}>{`⮚ ${
+                  <p className={styles.terminalHeader}>{`$ ${
                     prompts[idx] || "Container Prompt"
                   }`}</p>
                   <p className={styles.content}>{line}</p>
