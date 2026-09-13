@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useLayoutEffect, useState, useRef } from "react";
 import AnimatedText from "animated-text-letters";
 import "animated-text-letters/index.css";
 import styles from "./styles.module.css";
@@ -76,6 +76,18 @@ export default function Header({ handleCreate }: HeaderProps) {
     };
   }, [popupVisible]);
 
+  useLayoutEffect(() => {
+    if (!popupVisible || !popupRef.current || !createButtonRef.current) {
+      return;
+    }
+
+    const buttonRect = createButtonRef.current.getBoundingClientRect();
+    const popupRect = popupRef.current.getBoundingClientRect();
+
+    popupRef.current.style.top = `${buttonRect.bottom}px`;
+    popupRef.current.style.left = `${buttonRect.right - popupRect.width}px`;
+  }, [popupVisible]);
+
   return (
     <div className={styles.container}>
       <img className={styles.logo} src="/assets/dumont_logo.png" alt="Logo" />
@@ -110,17 +122,7 @@ export default function Header({ handleCreate }: HeaderProps) {
 
       {popupVisible && (
         <div className={styles.bg}>
-          <div
-            className={styles.popup}
-            ref={popupRef}
-            style={{
-              top:
-                createButtonRef.current!.offsetTop +
-                createButtonRef.current!.offsetHeight +
-                16,
-              left: createButtonRef.current!.getBoundingClientRect().left - 169,
-            }}
-          >
+          <div className={styles.popup} ref={popupRef}>
             <button
               className={styles.btn}
               onClick={() => handleCreate("createContainer")}

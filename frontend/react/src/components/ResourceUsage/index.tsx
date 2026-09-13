@@ -62,6 +62,7 @@ const ResourceUsage: React.FC<{ containerId: string }> = ({ containerId }) => {
       <div className={styles.infoContainer}>
         <CircleGraph percentage={ramPercentage || 0} label="RAM" />
         {`${(ramPercentage || 0).toFixed(2)}%`}
+        <span className={styles.secondaryText}>{formatBytes(ramUsage)}</span>
       </div>
       <div className={styles.infoContainer}>
         <svg width={64} height={64}>

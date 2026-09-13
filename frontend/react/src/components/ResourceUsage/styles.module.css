@@ -21,6 +21,11 @@
   background-color: rgba(0, 0, 0, 0.8);
 }
 
+.secondaryText {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
 .networkText {
   width: 100%;
   display: flex;
