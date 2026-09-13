@@ -40,13 +40,13 @@
 docker pull lnardon/dumont
 ```
 
-2 - Run the Dumont container. Replace the placeholder values with your personal information:
+2 - Run the Dumont container:
 
 ```bash
-docker run -d -e JWT_SIGNING_KEY="YOURSECRETKEYHERE" -e LOGIN_USERNAME="YOURUSERNAME" -e LOGIN_PASSWORD="YOURPASSWORD" -v /var/run/docker.sock:/var/run/docker.sock -p 3322:3322 lnardon/dumont
+docker run -d -v /var/run/docker.sock:/var/run/docker.sock -v dumont_data:/usr/src/app/data -p 3322:3322 lnardon/dumont
 ```
 
-3 - Access Dumont at http://localhost:3322
+3 - Access Dumont at http://localhost:3322 and follow the one-time setup screen to create your admin account. The `dumont_data` volume is where your hashed password and signing key are stored, so keep it around across upgrades/recreation or you'll be asked to set up again.
 
 </br>
 
@@ -58,14 +58,14 @@ docker run -d -e JWT_SIGNING_KEY="YOURSECRETKEYHERE" -e LOGIN_USERNAME="YOURUSER
 git clone https://github.com/lnardon/Dumont.git && cd Dumont && docker build -t dumont .
 ```
 
-2 - Start the container using the following command. Replace the placeholders with your information:
+2 - Start the container:
 
 ```bash
-docker run -d -e JWT_SIGNING_KEY="YOURSECRETKEYHERE" -e LOGIN_USERNAME="YOURUSERNAME" -e LOGIN_PASSWORD="YOURPASSWORD" -v /var/run/docker.sock:/var/run/docker.sock -p 3322:3322 dumont
+docker run -d -v /var/run/docker.sock:/var/run/docker.sock -v dumont_data:/usr/src/app/data -p 3322:3322 dumont
 
 ```
 
-3 - Access Dumont at http://localhost:3322
+3 - Access Dumont at http://localhost:3322 and follow the one-time setup screen to create your admin account. The `dumont_data` volume is where your hashed password and signing key are stored, so keep it around across upgrades/recreation or you'll be asked to set up again.
 
 </br>
 </br>

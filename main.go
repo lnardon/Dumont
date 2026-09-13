@@ -15,6 +15,8 @@ func main() {
 	
 	// Auth
 	http.HandleFunc("/api/login", AuthModule.Login)
+	http.HandleFunc("/api/setup", AuthModule.Setup)
+	http.HandleFunc("/api/setup_status", AuthModule.SetupStatus)
 
 	// Containers
 	http.HandleFunc("/api/get_all_containers", AuthModule.VerifyJWT(ContainerModule.HandleContainerList))
