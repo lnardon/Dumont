@@ -4,30 +4,29 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
+	"regexp"
 )
 
+var validGroupName = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 
 func HandleSaveAndDeployGroup(w http.ResponseWriter, r *http.Request){
-	body, err := io.ReadAll(r.Body)
-	defer r.Body.Close()
-	if err != nil {
-		http.Error(w, "Error reading request body", http.StatusInternalServerError)
-		return
-	}
-
 	var req SaveAndDeployRequest
-	err = json.Unmarshal(body, &req)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
 		return
 	}
+	defer r.Body.Close()
 
-	err = os.MkdirAll(fmt.Sprintf("./groups/%s", req.Name), 0755)
+	if !validGroupName.MatchString(req.Name) {
+		http.Error(w, "Invalid group name", http.StatusBadRequest)
+		return
+	}
+
+	err := os.MkdirAll(fmt.Sprintf("./groups/%s", req.Name), 0755)
 	if err != nil {
 		http.Error(w, "Error creating directory", http.StatusInternalServerError)
 		log.Println(err)

@@ -13,6 +13,8 @@ import (
 	"os/exec"
 	"strings"
 
+	AuthModule "Dumont/modules/auth"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
@@ -21,6 +23,13 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+func newDockerClient() (*client.Client, error) {
+    return client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.42"))
+}
+
+func newNegotiatedDockerClient() (*client.Client, error) {
+    return client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+}
 
 func StartContainer(w http.ResponseWriter, r *http.Request) {
     var req CreateRequest
@@ -30,7 +39,7 @@ func StartContainer(w http.ResponseWriter, r *http.Request) {
     }
     defer r.Body.Close()
 
-    cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.42"))
+    cli, err := newDockerClient()
     if err != nil {
         http.Error(w, fmt.Sprintf("Error creating Docker client: %s", err), http.StatusInternalServerError)
         return
@@ -40,8 +49,13 @@ func StartContainer(w http.ResponseWriter, r *http.Request) {
     ctx := context.Background()
     portBindings := nat.PortMap{}
     if req.Ports != "" {
-        hostPort := strings.Split(req.Ports, ":")[0]
-        containerPort := strings.Split(req.Ports, ":")[1] + "/tcp"
+        portParts := strings.Split(req.Ports, ":")
+        if len(portParts) != 2 || portParts[0] == "" || portParts[1] == "" {
+            http.Error(w, "Error parsing ports: expected format <host_port>:<container_port>", http.StatusBadRequest)
+            return
+        }
+        hostPort := portParts[0]
+        containerPort := portParts[1] + "/tcp"
         portBindings[nat.Port(containerPort)] = []nat.PortBinding{{HostPort: hostPort}}
     }
 
@@ -112,14 +126,14 @@ func StartContainer(w http.ResponseWriter, r *http.Request) {
 
 
 func StopContainer(w http.ResponseWriter, r *http.Request) {
-	var req CloneRequest
+	var req ContainerActionRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
 
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.42"))
+	cli, err := newDockerClient()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error creating Docker client: %s", err), http.StatusInternalServerError)
 		return
@@ -140,14 +154,14 @@ func StopContainer(w http.ResponseWriter, r *http.Request) {
 }
 
 func RunContainerById(w http.ResponseWriter, r *http.Request) {
-	var req CloneRequest
+	var req ContainerActionRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
 
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.42"))
+	cli, err := newDockerClient()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error creating Docker client: %s", err), http.StatusInternalServerError)
 		return
@@ -180,17 +194,15 @@ func dockerRun(imageName string, port string) error {
 }
 
 func HandleClone(w http.ResponseWriter, r *http.Request) {
-	body, err := io.ReadAll(r.Body)
-	defer r.Body.Close()
-	if err != nil {
-		http.Error(w, "Error reading request body", http.StatusInternalServerError)
+	var req ContainerActionRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
 		return
 	}
+	defer r.Body.Close()
 
-	var req CloneRequest
-	err = json.Unmarshal(body, &req)
-	if err != nil {
-		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
+	if req.RepoURL == "" || strings.HasPrefix(req.RepoURL, "-") {
+		http.Error(w, "Invalid repo_url", http.StatusBadRequest)
 		return
 	}
 
@@ -216,7 +228,7 @@ func HandleClone(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleContainerList(w http.ResponseWriter, r *http.Request) {
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.42"))
+	cli, err := newDockerClient()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error creating Docker client: %s", err), http.StatusInternalServerError)
 		return
@@ -263,14 +275,14 @@ func HandleGetContainerInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req CloneRequest
+	var req ContainerActionRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error decoding request body: %s", err), http.StatusBadRequest)
 		return
 	}
 
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.42"))
+	cli, err := newDockerClient()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error creating Docker client: %s", err), http.StatusInternalServerError)
 		return
@@ -304,43 +316,60 @@ func HandleGetContainerInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleDeleteContainer(w http.ResponseWriter, r *http.Request) {
-	body, err := io.ReadAll(r.Body)
-	defer r.Body.Close()
-	if err != nil {
-		http.Error(w, "Error reading request body", http.StatusInternalServerError)
-		return
-	}
-
-	var req CloneRequest
-	err = json.Unmarshal(body, &req)
-	if err != nil {
+	var req ContainerActionRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Error parsing JSON body", http.StatusBadRequest)
 		return
 	}
+	defer r.Body.Close()
 
-	cli, err := client.NewClientWithOpts(client.FromEnv,client.WithVersion("1.42"))
+	cli, err := newDockerClient()
 	if err != nil {
-		fmt.Println("Error creating sdk client: ", err)
+		http.Error(w, fmt.Sprintf("Error creating Docker client: %s", err), http.StatusInternalServerError)
+		return
 	}
 	defer cli.Close()
 
 	ctx := context.Background()
-	err = cli.ContainerStop(ctx, req.ContainerId, container.StopOptions{
+	if err := cli.ContainerStop(ctx, req.ContainerId, container.StopOptions{
 		Timeout: nil,
 		Signal: "SIGKILL",
-	})
-	err = cli.ContainerRemove(ctx, req.ContainerId, types.ContainerRemoveOptions{})
-	if err != nil {
-		fmt.Println("Error removing container: ", err)
+	}); err != nil {
+		http.Error(w, fmt.Sprintf("Error stopping container: %s", err), http.StatusInternalServerError)
+		return
 	}
 
-	fmt.Println("Container removed successfully")
+	if err := cli.ContainerRemove(ctx, req.ContainerId, types.ContainerRemoveOptions{}); err != nil {
+		http.Error(w, fmt.Sprintf("Error removing container: %s", err), http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
+	fmt.Fprintln(w, "Container removed successfully")
 }
 
 var upgrader = websocket.Upgrader{
     ReadBufferSize:  1024,
     WriteBufferSize: 1024,
+}
+
+func parseHandshake(rawMessage string) (containerID string, token string, err error) {
+    parts := strings.SplitN(rawMessage, "|", 2)
+    if len(parts) != 2 {
+        return "", "", fmt.Errorf("invalid handshake format")
+    }
+
+    containerPart := strings.SplitN(parts[0], ":", 2)
+    if len(containerPart) != 2 || containerPart[0] != "container_id" {
+        return "", "", fmt.Errorf("invalid container_id format")
+    }
+
+    tokenPart := strings.SplitN(parts[1], ":", 2)
+    if len(tokenPart) != 2 || tokenPart[0] != "token" {
+        return "", "", fmt.Errorf("invalid token format")
+    }
+
+    return containerPart[1], tokenPart[1], nil
 }
 
 func TerminalHandler(w http.ResponseWriter, r *http.Request) {
@@ -357,14 +386,21 @@ func TerminalHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    messageParts := strings.SplitN(string(firstMsg), ":", 2)
-    if len(messageParts) != 2 || messageParts[0] != "container_id" {
-        log.Printf("invalid container ID format")
+    container_id, token, err := parseHandshake(string(firstMsg))
+    if err != nil {
+        log.Printf("invalid handshake: %v", err)
+        conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "invalid handshake"))
         return
     }
-    container_id := messageParts[1]
 
-    cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+    parsedToken, err := AuthModule.ValidateToken(token)
+    if err != nil || !parsedToken.Valid {
+        log.Printf("unauthorized terminal connection attempt")
+        conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "unauthorized"))
+        return
+    }
+
+    cli, err := newNegotiatedDockerClient()
     if err != nil {
         log.Printf("Docker client error: %v", err)
         return
@@ -431,7 +467,7 @@ func TerminalHandler(w http.ResponseWriter, r *http.Request) {
 
 func executeCommandInDocker(containerID, command string) (string, error) {
     ctx := context.Background()
-    cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+    cli, err := newNegotiatedDockerClient()
     if err != nil {
         return "", err
     }
@@ -484,14 +520,21 @@ func LogsHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    messageParts := strings.SplitN(string(firstMsg), ":", 2)
-    if len(messageParts) != 2 || messageParts[0] != "container_id" {
-        log.Printf("invalid container ID format")
+    containerID, token, err := parseHandshake(string(firstMsg))
+    if err != nil {
+        log.Printf("invalid handshake: %v", err)
+        conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "invalid handshake"))
         return
     }
-    containerID := messageParts[1]
 
-    cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+    parsedToken, err := AuthModule.ValidateToken(token)
+    if err != nil || !parsedToken.Valid {
+        log.Printf("unauthorized logs connection attempt")
+        conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "unauthorized"))
+        return
+    }
+
+    cli, err := newNegotiatedDockerClient()
     if err != nil {
         log.Printf("Docker client error: %v", err)
         return

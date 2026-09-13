@@ -24,7 +24,8 @@ function Logs({
       ws.current.binaryType = "arraybuffer";
       ws.current.onopen = () => {
         setIsSocketConnected(true);
-        ws.current?.send("container_id:" + containerId);
+        const token = sessionStorage.getItem("token") || "";
+        ws.current?.send("container_id:" + containerId + "|token:" + token);
       };
 
       ws.current.onmessage = (event) => {

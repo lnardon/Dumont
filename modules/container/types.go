@@ -1,6 +1,6 @@
 package container
 
-type CloneRequest struct {
+type ContainerActionRequest struct {
 	RepoURL string `json:"repo_url"`
 	Port string `json:"container_port"`
 	ContainerId string `json:"container_id"`
